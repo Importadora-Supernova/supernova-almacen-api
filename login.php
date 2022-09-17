@@ -41,6 +41,7 @@ if($con){
 
    switch($methodApi){
        // metodo post 
+       //enviar data
        case 'POST':
 
         $_POST = json_decode(file_get_contents('php://input'),true);
