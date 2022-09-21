@@ -39,7 +39,7 @@ if($con){
        case 'GET':
         // para obtener un registro especifico
         if(isset($_GET['id'])){
-            $sql = 'SELECT a.id_almacen,a.nombre_almacen,a.tipo,a.fecha_create,s.nombre_status FROM almacenes a INNER JOIN estados s ON a.status = s.id  where a.id="'.$_GET['id'].'"';
+            $sql = 'SELECT a.id_almacen,a.nombre_almacen,a.tipo,a.fecha_create,s.nombre_status FROM almacenes a INNER JOIN estados s ON a.status = s.id_status  where a.id_almacen="'.$_GET['id'].'"';
             $result = mysqli_query($con,$sql);
             $i=0;
             while($row = mysqli_fetch_assoc($result)){
