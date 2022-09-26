@@ -1,6 +1,8 @@
 <?php
 // conexion con base de datos 
 include 'conexion/conn.php';
+//incluir middleware
+include 'middleware/midleware.php';
 
 // declarar array para respuestas 
 $response = array();
@@ -18,7 +20,10 @@ header('Content-Type: application/json;charset=utf-8');
 
 // validamos si hay conexion 
 if($con){
-   $methodApi = $_SERVER['REQUEST_METHOD'];
+
+   if($validate == 'validado'){
+    
+    $methodApi = $_SERVER['REQUEST_METHOD'];
    
     if($methodApi == 'GET'){
         if(isset($_GET['codigo'])){
@@ -31,7 +36,7 @@ if($con){
                  $response[$i]['nombre'] = $row['nombre'];
                  $response[$i]['codigo'] = $row['codigo'];
                  $response[$i]['almacen'] = $row['almacen'];
-                 $response[$i]['cantidad'] = 0;
+                 $response[$i]['cantidad'] = null;
                  $i++;
              }
             echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
@@ -81,8 +86,13 @@ if($con){
                 
              }
         }
-        
     }
+   }else{
+        header("HTTP/1.1 401");
+        $response['mensaje'] = 'Tu TOKEN '.$validate.' ';
+        echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+   } 
+  
 }else{
     echo "DB FOUND CONNECTED";
 }

@@ -1,0 +1,111 @@
+<?php
+// conexion con base de datos 
+include '../conexion/conn.php';
+require('../fpdf/fpdf.php');
+
+// declarar array para respuestas 
+$response = array();
+
+// insertamos cabeceras para permisos 
+
+header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+header("Allow: GET, POST, OPTIONS, PUT, DELETE");
+header("Content-Type: JSON");
+header('Content-Type: application/json;charset=utf-8'); 
+
+
+
+// validamos si hay conexion 
+if($con){
+    
+        $methodApi = $_SERVER['REQUEST_METHOD'];
+
+        if($methodApi == 'GET'){
+              // para obtener un registro especifico
+              if(isset($_GET['id'])){
+                $sql = 'SELECT a.id_almacen,a.nombre_almacen,a.tipo,a.fecha_create,s.nombre_status FROM almacenes a INNER JOIN estados s ON a.status = s.id_status  where a.id_almacen="'.$_GET['id'].'"';
+                $result = mysqli_query($con,$sql);
+                $i=0;
+                while($row = mysqli_fetch_assoc($result)){
+                    $response['id_almacen'] = $row['id_almacen'];
+                    $response['nombre_almacen'] = $row['nombre_almacen'];
+                    $response['tipo'] = $row['tipo'];
+                    $response['fecha_create'] = $row['fecha_create'];
+                    $response['status'] = $row['nombre_status'];
+                    $i++;
+                }
+             } else{
+                 // es para obtener todos los registros 
+                $sql = 'select *from vista_almacenes';
+                $result = mysqli_query($con,$sql);
+                //Instaciamos la clase para genrear el documento pdf
+                    $pdf=new FPDF();
+
+                    //Agregamos la primera pagina al documento pdf
+                    $pdf->AddPage();
+                    //Seteamos el inicio del margen superior en 15 pixeles
+                   // $y_axis_initial = 0;
+
+                    //incluimos header de reportes    
+
+                    $pdf->SetFont('Arial','B',12);
+
+                    $pdf->Cell(40,6,'',0,0,'C');
+                    $pdf->Cell(130,6,'LISTA DE ALMACENES',1,0,'C');
+
+                    $pdf->Ln(10);
+
+                    //Creamos las celdas para los titulo de cada columna y le asignamos un fondo gris y el tipo de letra
+                    $pdf->SetFillColor(255,113,132);
+
+                    $pdf->SetFont('Arial','B',10);
+                    $pdf->Cell(30,6,'id',1,0,'C',1);
+
+                    $pdf->Cell(40,6,'Nombre',1,0,'C',1);
+
+                    $pdf->Cell(50,6,'Fecha created',1,0,'C',1);
+
+                    $pdf->Cell(60,6,'Status',1,0,'C',1);
+
+                    $pdf->Ln(6);
+
+                    while($row = mysqli_fetch_assoc($result))
+                    {
+                        $id = $row['id_almacen'];
+                        $nombre = $row['nombre_almacen'];
+                        $fecha = $row['fecha_create'];
+                        $status = $row['nombre_status'];
+
+                        $pdf->Cell(30,8,$id,1,0,'C',0);
+
+                        $pdf->Cell(40,8,utf8_decode($nombre),1,0,'C',0);
+
+                        $pdf->Cell(50,8,utf8_decode($fecha),1,0,'C',0);
+
+                        $pdf->Cell(60,8,utf8_decode($status),1,0,'C',0);
+
+
+                        //Muestro la iamgen dentro de la celda GetX y GetY dan las coordenadas actuales de la fila
+
+                        //$pdf->Cell( 30, 15, $pdf->Image($imagen, $pdf->GetX()+5, $pdf->GetY()+3, 20), 1, 0, 'C', false );
+
+                        $pdf->Ln(8);
+                    }
+                    
+
+
+                    //Mostramos el documento pdf
+                      $pdf->Output();
+
+             }
+        }
+        
+    //echo "Informacion".file_get_contents('php://input');
+
+}else{
+    echo "DB FOUND CONNECTED";
+}
+?>
+

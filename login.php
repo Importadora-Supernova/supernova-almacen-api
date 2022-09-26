@@ -22,9 +22,9 @@ if($con){
     //echo "Informacion".file_get_contents('php://input');
 
    $methodApi = $_SERVER['REQUEST_METHOD'];
-   $minuto = date('i')+10;
+   $hora = date('H')+8;
    $fecha_actual = date('Y-m-d H:i:s');
-   $fecha_expire = date('Y-m-d H:'.$minuto.':s');
+   $fecha_expire = date('Y-m-d '.$hora.':i:s');
 
     function generarToken(){
 

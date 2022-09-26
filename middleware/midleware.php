@@ -24,10 +24,10 @@ include 'conexion/conn.php';
                 if($fill['expire_token'] > $fecha_actual){
                     $validate = 'validado';
                 }else{
-                    $validate = 'expirado';
+                    $validate = 'ha expirado';
                 }
             }else{
-                $validate = 'incorrecto';
+                $validate = 'es incorrecto';
             }
         }else{
             $validate = 'error';
