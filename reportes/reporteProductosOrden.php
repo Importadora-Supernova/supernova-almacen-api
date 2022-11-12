@@ -39,7 +39,7 @@ if($con){
                    $total = $row['total'];
                 }
 
-                $sql = 'SELECT p.id,p.nombre,p.codigo,r.precio,r.cantidad,r.fecha,f.orden FROM productos p INNER JOIN registro_usuario r ON p.id = r.id_producto INNER JOIN folios f ON r.orden = f.orden where r.orden="'.$_GET['orden'].'"';
+                $sql = 'SELECT p.id,p.nombre,p.codigo,r.precio,r.cantidad,r.fecha,f.orden FROM productos p INNER JOIN registro_usuario r ON p.id = r.id_producto INNER JOIN folios f ON r.orden = f.orden where r.orden="'.$_GET['orden'].'" ORDER BY r.cantidad ';
                 $result = mysqli_query($con,$sql);
                 $i=0;
 

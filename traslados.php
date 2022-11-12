@@ -21,7 +21,7 @@ header('Content-Type: application/json;charset=utf-8');
 // validamos si hay conexion 
 if($con){
     
-    if($validate == 'validado'){
+    // if($validate == 'validado'){
         $methodApi = $_SERVER['REQUEST_METHOD'];
 
         switch($methodApi){
@@ -83,8 +83,24 @@ if($con){
                             $i++;
                         }
                         echo json_encode($response,JSON_PRETTY_PRINT);
+                    }else if(isset($_GET['producto'])){
+                        $sql = 'SELECT t.id_traslado,a.nombre_almacen as almacen_origen,b.nombre_almacen as almacen_destino,p.id as id_producto,p.nombre,p.codigo,t.cantidad,t.fecha_created FROM almacenes a INNER JOIN traslados t ON a.id_almacen = t.id_almacen_origen INNER JOIN almacenes b ON b.id_almacen = t.id_almacen_destino INNER JOIN productos p ON p.id = t.id_producto WHERE p.id="'.$_GET['producto'].'" ORDER BY t.id_traslado DESC';
+                        $result = mysqli_query($con,$sql);
+                        $i=0;
+                        while($row = mysqli_fetch_assoc($result)){
+                            $response[$i]['id'] = $row['id_traslado'];
+                            $response[$i]['id_producto'] = $row['id_producto'];
+                            $response[$i]['almacen_origen'] = $row['almacen_origen'];
+                            $response[$i]['almacen_destino'] = $row['almacen_destino'];
+                            $response[$i]['nombre'] = $row['nombre'];
+                            $response[$i]['codigo'] = $row['codigo'];
+                            $response[$i]['cantidad'] = $row['cantidad'];
+                            $response[$i]['fecha_created'] = $row['fecha_created'];
+                            $i++;
+                        }
+                        echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
                     } else{
-
+                        
                                 $sql = 'select *from vista_traslados';
                                 $result = mysqli_query($con,$sql);
                                 $i=0;
@@ -96,18 +112,17 @@ if($con){
                                     $response[$i]['codigo'] = $row['codigo'];
                                     $response[$i]['cantidad'] = $row['cantidad'];
                                     $response[$i]['fecha_created'] = $row['fecha_created'];
-                                    $response[$i][$row['fecha_created']] = $row['cantidad'];
                                     $i++;
                                 }
                                 echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
                     }
             break;
         }
-    }else{
-        header("HTTP/1.1 401");
-        $response['mensaje'] = 'Tu TOKEN '.$validate.' ';
-        echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-    }
+    // }else{
+    //     header("HTTP/1.1 401");
+    //     $response['mensaje'] = 'Tu TOKEN '.$validate.' ';
+    //     echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    // }
     //echo "Informacion".file_get_contents('php://input');
 
 }else{

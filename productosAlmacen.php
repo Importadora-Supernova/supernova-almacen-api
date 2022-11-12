@@ -32,10 +32,18 @@ if($con){
             case 'POST':
 
                 $_POST = json_decode(file_get_contents('php://input'),true);
+                $inventario = $_POST['inventario'];
                 //consultamos si el registro del producto existe en ese almacen
                 $query_select = 'SELECT *FROM almacen_producto WHERE id_almacen='.$_POST['id_almacen'].' AND id_producto='.$_POST['id_producto'].'';
                 $resultado = mysqli_query($con,$query_select);
                 $fill = mysqli_fetch_assoc($resultado);
+
+                if($inventario == "1"){
+                     $sqlUpdateInventario = 'UPDATE productos SET inventario="0", almacen=0 WHERE id='.$_POST['id_producto'].'';
+                    $resUpdateInventario = mysqli_query($con,$sqlUpdateInventario);
+                }
+
+               
 
                 //comprobando si el registro existe
                 if($fill){
@@ -49,6 +57,7 @@ if($con){
 
                     $sqlHistorial = 'INSERT INTO historial_carga_producto (id_producto,id_almacen,cantidad,fecha_created) VALUES ('.$_POST['id_producto'].','.$_POST['id_almacen'].','.$_POST['cantidad'].',"'.$fecha.'")';
                     $resHistorial = mysqli_query($con,$sqlHistorial);
+
 
                     if($res && $resUpdate && $resHistorial){
                         $con->commit();
