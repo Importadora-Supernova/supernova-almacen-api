@@ -32,7 +32,7 @@ if($con){
             $result = mysqli_query($con,$sqlUpdate);
 
             $fullName = $_POST['nombre'].' '.$_POST['apellido'];
-            $sqlUpdateFolio = 'UPDATE folios SET nombres="'.$fullName.'",paqueteria="'.$_POST['paqueteria'].'" WHERE orden="'.$_POST['orden'].'"';
+            $sqlUpdateFolio = 'UPDATE folios SET nombres="'.$fullName.'",paqueteria="'.$_POST['paqueteria'].'",id_usuario_edit='.$_POST['id_user'].',fecha_edit="'.$fecha_actual.'" WHERE orden="'.$_POST['orden'].'"';
             $resultFolio = mysqli_query($con,$sqlUpdateFolio);
 
             if($result && $resultFolio){
@@ -56,17 +56,34 @@ if($con){
             $result = mysqli_query($con,$sqlUpdate);
             
             $fullName = $_PUT['nombre'].' '.$_PUT['apellido'];
-            $sqlUpdateFolios = 'UPDATE folios SET nombres="'.$fullName.'",paqueteria="'.$_PUT['paqueteria'].'",total=total+'.$_PUT['suma'].',estatus="'.$_PUT['estatus'].'",cajas="'.$_PUT['cajas'].'",venta_paqueteria="'.$_PUT['monto'].'",saldo_pendiente="'.$_PUT['saldoFavor'].'",envio="'.$_PUT['envio'].'" WHERE orden="'.$_PUT['orden'].'"';
+            $sqlUpdateFolios = 'UPDATE folios SET nombres="'.$fullName.'",paqueteria="'.$_PUT['paqueteria'].'",total=total+'.$_PUT['suma'].',estatus="'.$_PUT['estatus'].'",cajas="'.$_PUT['cajas'].'",venta_paqueteria="'.$_PUT['monto'].'",saldo_pendiente="'.$_PUT['saldoFavor'].'",envio="'.$_PUT['envio'].'",id_usuario_edit='.$_PUT['id_user'].',fecha_edit="'.$fecha_actual.'" WHERE orden="'.$_PUT['orden'].'"';
             $resultFolios = mysqli_query($con,$sqlUpdateFolios);
             
             $suma = $_PUT['suma'];
-            
+            $methods = $_PUT['metodos'];
+            $flag    = true;
+            $k       =  0;
             
             if($suma > 0){
-                $sqlPagos = 'INSERT INTO pagos (orden,fecha,monto,banco,metodos_pago) VALUES ("'.$_PUT['orden'].'","'.$fecha_actual.'",'.$_PUT['suma'].',"'.$_PUT['banco'].'","'.$_PUT['metodos'].'")';
-                $resultPagos = mysqli_query($con,$sqlPagos); 
+
+                 //insertar nuevos registros en pagos
+                while($k<count($methods))
+                {
+                    $sqlInsertPago = 'INSERT INTO pagos (orden,fecha,monto,banco,metodos_pago) VALUES ("'.$_PUT['orden'].'","'.$fecha_actual.'",'.$methods[$k]['monto'].',"'.$methods[$k]['banco'].'","'.$methods[$k]['metodo'].'")';
+                    $resultPago = mysqli_query($con,$sqlInsertPago);
+                    if($resultPago){
+                        $k++;
+                    }else{
+                        $flag = false;
+                        break;
+                    }
+                }
+
+
+                // $sqlPagos = 'INSERT INTO pagos (orden,fecha,monto,banco,metodos_pago) VALUES ("'.$_PUT['orden'].'","'.$fecha_actual.'",'.$_PUT['suma'].',"'.$_PUT['banco'].'","'.$_PUT['metodos'].'")';
+                // $resultPagos = mysqli_query($con,$sqlPagos); 
                 
-                if($result && $resultFolios && $resultPagos)
+                if($result && $resultFolios && $flag)
                 {
                     $con->commit();
                     header("HTTP/1.1 200 OK");

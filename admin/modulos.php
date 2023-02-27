@@ -25,6 +25,19 @@ if($con){
             // metodo post 
             case 'POST':
              $_POST = json_decode(file_get_contents('php://input'),true);
+
+             $sqlInsert = 'INSERT INTO app_modulos_bodega (nombre_modulo,ruta,icono,estatus_modulo) VALUES ("'.$_POST['nombre_modulo'].'","'.$_POST['ruta'].'","'.$_POST['icono'].'","'.$_POST['estatus'].'")';
+             $result = mysqli_query($con,$sqlInsert);
+
+             if($result){
+                header("HTTP/1.1 200");
+                $response['mensaje'] = 'EL modulo se registro correctamente';
+                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+             }else{
+                header("HTTP/1.1 400");
+                $response['mensaje'] = 'Ocurrio un error,No se podo completar la accion';
+                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+             }
              //
             break;
             // metodo get 

@@ -17,7 +17,7 @@ include '../conexion/conn.php';
             if($tok == ''){
                 $validate = 'no existe';
             }else{
-                $sqlConsulta = 'SELECT token,expire_token FROM usuarios_almacen WHERE token="'.$tok.'"';
+                $sqlConsulta = 'SELECT token,expire_token FROM usuarios_ventas WHERE token="'.$tok.'"';
                 $resultado = mysqli_query($con,$sqlConsulta);
                 $fill = mysqli_fetch_assoc($resultado);
                 if($fill){

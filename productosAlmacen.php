@@ -106,7 +106,7 @@ if($con){
             case 'GET':
                 // para obtener un registro especifico
                 if(isset($_GET['id'])){
-                    $sql = 'SELECT a.id_almacen,a.nombre_almacen,p.id,p.codigo,p.nombre,r.cantidad FROM almacenes a INNER JOIN almacen_producto r ON a.id_almacen = r.id_almacen INNER JOIN productos p ON p.id = r.id_producto   where a.id_almacen="'.$_GET['id'].'"';
+                    $sql = 'SELECT a.id_almacen,a.nombre_almacen,p.id,p.codigo,p.nombre,r.cantidad,p.topem,p.topec,p.topev,p.descuento FROM almacenes a INNER JOIN almacen_producto r ON a.id_almacen = r.id_almacen INNER JOIN productos p ON p.id = r.id_producto   where a.id_almacen="'.$_GET['id'].'"';
                     $result = mysqli_query($con,$sql);
                     $i=0;
                     while($row = mysqli_fetch_assoc($result)){
@@ -117,6 +117,9 @@ if($con){
                         $response[$i]['nombre_producto'] = $row['nombre'];
                         $response[$i]['cantidad_producto'] = $row['cantidad'];
                         $response[$i]['fullname'] = $row['codigo']." ".$row['nombre'];
+                        $response[$i]['topem'] = $row['topem'];
+                        $response[$i]['topev'] = $row['topev'];
+                        $response[$i]['topec'] = $row['topec'];
                         $response[$i]['cantidad'] = 0;
                         $i++;
                     }

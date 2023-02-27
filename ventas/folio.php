@@ -36,7 +36,7 @@ if($con){
             // metodo get 
             case 'GET':
              // para obtener un registro especifico
-                $sql = 'SELECT  *FROM folios WHERE orden="'.$_GET['orden'].'"';
+                $sql = 'SELECT  f.id_usuario,f.nombres,f.orden,f.paqueteria,f.total,f.fecha,f.fecha_procesado,f.fecha_almacen,f.fecha_salida,f.estatus,e.cajas,e.bolsas  FROM folios  f LEFT JOIN empaquetado e  ON f.orden = e.orden  WHERE f.orden="'.$_GET['orden'].'"';
                 $result = mysqli_query($con,$sql);
                 while($row = mysqli_fetch_assoc($result)){      
                     $response['id_usuario'] =  $row['id_usuario'];
@@ -48,7 +48,10 @@ if($con){
                     $response['fecha_procesado'] =  $row['fecha_procesado'];
                     $response['fecha_almacen'] =  $row['fecha_almacen'];
                     $response['fecha_salida'] =  $row['fecha_salida'];
-                    $response['estatus'] =  $row['estatus'];       
+                    $response['estatus'] =  $row['estatus'];
+                    $response['cant'] = $row['cajas'].'/'.$row['bolsas'];
+                    $response['cajas'] = $row['cajas'];
+                    $response['bolsas'] = $row['bolsas'];
                 }
                 header("HTTP/1.1 200 OK");
                 echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);

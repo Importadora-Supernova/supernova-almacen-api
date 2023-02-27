@@ -31,13 +31,16 @@ if($con){
 
             $con->autocommit(false);
 
-            $sqlInsertFolio = 'INSERT INTO folios (id_usuario,nombres,orden,paqueteria,cantidad,total,estatus,fecha) VALUES 
-            ('.$_POST['id'].',"'.$_POST['fullName'].'","'.$_POST['newOrden'].'","'.$_POST['paqueteria'].'","'.$_POST['cantidad'].'","'.$_POST['total'].'","Sin procesar","'.$fecha.'")';
+            $sqlInsertFolio = 'INSERT INTO folios (id_usuario,nombres,orden,envio,paqueteria,cantidad,total,estatus,fecha) VALUES 
+            ('.$_POST['id'].',"'.$_POST['fullName'].'","'.$_POST['newOrden'].'","'.$_POST['envio'].'","'.$_POST['paqueteria'].'","'.$_POST['cantidad'].'","'.$_POST['total'].'","Sin procesar","'.$fecha.'")';
             $resInsertFolio = mysqli_query($con,$sqlInsertFolio);
 
-            $sqlDelete = 'DELETE FROM carrito WHERE id_usuario='.$_POST['id'].'';
+            $updateUsuario = 'UPDATE usuario SET orden=orden+1 WHERE id="'.$_POST['id'].'';
+            $requestUpdate = mysqli_query($con,$updateUsuario);
+
+            $sqlDelete = 'DELETE FROM carrito_compras WHERE id_usuario='.$_POST['id'].'';
             $resultDelete = mysqli_query($con,$sqlDelete);            
-            if($resInsertFolio && $resultDelete){
+            if($resInsertFolio && $resultDelete && $requestUpdate){
                 $data = [];
                 $data = $_POST['pedido'];
                 $i=0;
@@ -71,7 +74,7 @@ if($con){
             }else{
                 $con->rollback();
                 header("HTTP/1.1 400");
-                $response['mensaje'] = 'No se podo completar la accion';
+                $response['mensaje'] = 'No se pudo completar la accion';
                 echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
             }
         }

@@ -3,7 +3,6 @@
 include '../conexion/conn.php';
 //incluir middleware
 include '../middleware/midleware.php';
-
 // declarar array para respuestas 
 $response = array();
 
@@ -29,17 +28,18 @@ if($con){
             // metodo post 
             case 'POST':
             $_POST = json_decode(file_get_contents('php://input'),true);
-            $sqlInsert = 'INSERT INTO app_tipo_usuario_ventas (nombre_tipo_usuario,estatus_tipo,fecha_created) VALUES ("'.$_POST['nombre_tipo_usuario'].'","'.$_POST['estatus'].'","'.$fecha.'")';
+            $pass = md5($_POST['pass_user']);
+            $sqlInsert = 'INSERT INTO usuarios_ventas (email_user,pass_user,tipo_usuario,estado_user,fecha_created) VALUES ("'.$_POST['email_user'].'","'.$pass.'",'.$_POST['tipo_usuario'].','.$_POST['estado_user'].',"'.$fecha.'")';
             $result = mysqli_query($con,$sqlInsert);
             if($result){
                 header("HTTP/1.1 200 OK");
                 $response['status'] = 200;
-                $response['mensaje'] = 'Registro creado correctamente';
+                $response['mensaje'] = 'Usuario creado correctamente';
                 echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
             }else{
                 header("HTTP/1.1 400");
                 $response['status'] = 400;
-                $response['mensaje'] = 'No se pudo Guardar el registro';
+                $response['mensaje'] = 'No se pudo Guardar el usuario';
                 echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
             }
              //
@@ -47,63 +47,59 @@ if($con){
             // metodo get 
             case 'GET':
              // para obtener un registro especifico
-             if(isset($_GET['id'])){ 
-                 $sql = 'SELECT *FROM app_tipo_usuario_ventas  WHERE id_tipo_usuario='.$_GET['id'].'';
-                 $result = mysqli_query($con,$sql);
-                 $i=0;
-                 while($row = mysqli_fetch_assoc($result)){
-                    $response['id'] = $row['id_tipo_usuario'];
+            if(isset($_GET['id'])){ 
+                $sql = 'SELECT u.id_user_ventas,u.email_user,u.estado_user,u.tipo_usuario,t.nombre_tipo_usuario,u.fecha_created  FROM usuarios_ventas u LEFT JOIN app_tipo_usuario_ventas T ON u.tipo_usuario = t.id_tipo_usuario WHERE u.id_user_ventas='.$_GET['id'].'';
+                $result = mysqli_query($con,$sql);
+                while($row = mysqli_fetch_assoc($result)){
+                    $response['id'] = $row['id_user_ventas'];
+                    $response['email_user'] = $row['email_user'];
+                    $response['estado_user'] = $row['estado_user'] == "1" ? true : false;
+                    $response['tipo_usuario'] = $row['tipo_usuario'];
                     $response['nombre_tipo_usuario'] = $row['nombre_tipo_usuario'];
-                    $response['estatus_tipo'] = $row['estatus_tipo'] == "1" ? true : false;
                     $response['fecha_created'] = $row['fecha_created'];
-                     $i++;
-                 }
+                }
 
-                 echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-              } else if(isset($_GET['activos'])){
-                    $sqlPagados = 'SELECT * FROM app_tipo_usuario_ventas WHERE estatus_tipo="1"';
-                    $resultPagados = mysqli_query($con,$sqlPagados);
+                echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                } else if(isset($_GET['activos'])){
+                    $sql = 'SELECT u.id_user_ventas,u.email_user,u.estado_user,u.tipo_usuario,t.nombre_tipo_usuario,u.fecha_created FROM usuarios_ventas u LEFT JOIN app_tipo_usuario_ventas t ON u.tipo_usuario = t.id_tipo_usuario WHERE u.estado_user =1';
+                    $result = mysqli_query($con,$sql);
                     $i=0;
-                    while($row = mysqli_fetch_assoc($resultPagados)){
-                        $response[$i]['id'] = $row['id_tipo_usuario'];
+                    while($row = mysqli_fetch_assoc($result)){
+                        $response[$i]['id'] = $row['id_user_ventas'];
+                        $response[$i]['email_user'] = $row['email_user'];
+                        $response[$i]['estado_user'] = $row['estado_user'] == "1" ? true : false;
+                        $response[$i]['tipo_usuario'] = $row['tipo_usuario'];
                         $response[$i]['nombre_tipo_usuario'] = $row['nombre_tipo_usuario'];
-                        $i++;
-                    }
-                    echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-
-              } else {
-                    $sqlPagados = 'SELECT * FROM app_tipo_usuario_ventas';
-                    $resultPagados = mysqli_query($con,$sqlPagados);
-                    $i=0;
-                    while($row = mysqli_fetch_assoc($resultPagados)){
-                        $response[$i]['id'] = $row['id_tipo_usuario'];
-                        $response[$i]['nombre_tipo_usuario'] = $row['nombre_tipo_usuario'];
-                        $response[$i]['estatus_tipo'] = $row['estatus_tipo'] == "1" ? true : false;
                         $response[$i]['fecha_created'] = $row['fecha_created'];
                         $i++;
                     }
-
                     echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-                 }
+
+                }else{
+                    $sql = 'SELECT u.id_user_ventas,u.email_user,u.estado_user,u.tipo_usuario,u.fecha_created,t.nombre_tipo_usuario  FROM usuarios_ventas u LEFT JOIN app_tipo_usuario_ventas t ON u.tipo_usuario = t.id_tipo_usuario';
+                    $result = mysqli_query($con,$sql);
+                    $i=0;
+                    while($row = mysqli_fetch_assoc($result)){
+                        $response[$i]['id'] = $row['id_user_ventas'];
+                        $response[$i]['email_user'] = $row['email_user'];
+                        $response[$i]['estado_user'] = $row['estado_user'] == "1" ? true : false;
+                        $response[$i]['tipo_usuario'] = $row['tipo_usuario'];
+                        $response[$i]['nombre_tipo_usuario'] = $row['nombre_tipo_usuario'];
+                        $response[$i]['fecha_created'] = $row['fecha_created'];
+                        $i++;
+                    }
+                    echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                    }
             break;
             case 'PUT':
                 $_PUT = json_decode(file_get_contents('php://input'),true);
-                $update = 'UPDATE app_tipo_usuario_ventas SET nombre_tipo_usuario="'.$_PUT['nombre_tipo_usuario'].'", estatus_tipo='.$_PUT['estatus'].' WHERE id_tipo_usuario='.$_GET['id'].'';
+                $update = 'UPDATE usuarios_ventas SET email_user="'.$_PUT['email_user'].'", estado_user='.$_PUT['estado_user'].', tipo_usuario='.$_PUT['tipo_usuario'].' WHERE id_user_ventas='.$_GET['id'].'';
                 $resUpdate = mysqli_query($con,$update);
-                $resCall = null;
-                $idCall = $_PUT['id'];
-                if($_PUT['estatus_tipo'] == "0"){
-                    $sql = "CALL actualizarUsuario($idCall);";
-                    $resCall = mysqli_query($con,$sql);
-
-                }
-                
 
                 if($resUpdate){
                     header("HTTP/1.1 200 OK");
                     $response['status'] = 200;
                     $response['mensaje'] = 'Registro actulizado correctamente';
-                    $response['call'] = $resCall;
                     echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
                 }else{
                     header("HTTP/1.1 400");
@@ -120,7 +116,6 @@ if($con){
         $response['mensaje'] = 'Token '.$validate;
         echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
-       
     //echo "Informacion".file_get_contents('php://input');
 
 }else{

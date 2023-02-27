@@ -22,7 +22,6 @@ $fecha = date('Y-m-d');
 
 // validamos si hay conexion 
 if($con){
-        
         if($validate === 'validado'){
             $methodApi = $_SERVER['REQUEST_METHOD'];
             switch($methodApi){
@@ -37,7 +36,7 @@ if($con){
                 case 'GET':
                 // para obtener un registro especifico
                     if(isset($_GET['fecha'])){
-                    $sql = 'SELECT  *FROM folios WHERE estatus!="Sin procesar" AND pendiente!="Pendiente" AND fecha_procesado LIKE "'.$_GET['fecha'].'%"';
+                    $sql = 'SELECT  *FROM folios WHERE estatus!="Sin procesar" AND fecha_procesado LIKE "'.$_GET['fecha'].'%"';
                     $result = mysqli_query($con,$sql);
                     $i=0;
                     while($row = mysqli_fetch_assoc($result)){      
@@ -56,7 +55,7 @@ if($con){
                     header("HTTP/1.1 200 OK");
                     echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
                     }else if(isset($_GET['orden'])){
-                        $sql = 'SELECT  *FROM folios WHERE estatus!="Sin procesar" AND pendiente!="Pendiente" AND orden="'.$_GET['orden'].'"';
+                        $sql = 'SELECT  *FROM folios WHERE estatus!="Sin procesar"  AND orden="'.$_GET['orden'].'"';
                         $result = mysqli_query($con,$sql);
                         $i=0;
                         while($row = mysqli_fetch_assoc($result)){      
@@ -76,7 +75,7 @@ if($con){
                         header("HTTP/1.1 200 OK");
                         echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
                     }else{
-                        $sql = 'SELECT  *FROM folios WHERE estatus!="Sin procesar" AND pendiente!="Pendiente" AND fecha_procesado LIKE "'.$fecha.'%"';
+                        $sql = 'SELECT  *FROM folios WHERE estatus!="Sin procesar"  AND fecha_procesado LIKE "'.$fecha.'%"';
                         $result = mysqli_query($con,$sql);
                         $i=0;
                         while($row = mysqli_fetch_assoc($result)){

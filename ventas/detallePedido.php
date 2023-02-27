@@ -31,7 +31,7 @@ if($con){
              // metodo get 
              // para obtener un registro especifico
             if(isset($_GET['orden'])){
-                $sql = 'SELECT  *FROM productos_orden WHERE orden="'.$_GET['orden'].'" AND delete_item != "1"';
+                $sql = 'SELECT  *FROM productos_orden WHERE orden="'.$_GET['orden'].'" ';
                 $result = mysqli_query($con,$sql);
                 $i=0;
                 while($row = mysqli_fetch_assoc($result)){      
@@ -95,11 +95,11 @@ if($con){
                     $sqlUpdatePrice  = 'UPDATE registro_usuario  SET precio='.$_POST['price'].' WHERE orden="'.$_POST['orden'].'" AND codigo="'.$_POST['codigo'].'"';
                     $resultPrice = mysqli_query($con,$sqlUpdatePrice);
                     
-                    $consulta = 'SELECT SUM(precio*cantidad) as total FROM registro_usuario WHERE orden="'.$_POST['orden'].'" AND delete_item!="1"';
+                    $consulta = 'SELECT SUM(precio*cantidad) as total FROM registro_usuario WHERE orden="'.$_POST['orden'].'" ';
                     $resPedido = mysqli_query($con,$consulta);
                     $fill = mysqli_fetch_assoc($resPedido);
 
-                    $sqlUpdateFolio = 'UPDATE folios SET total='.$fill['total'].' WHERE orden="'.$_POST['orden'].'"';
+                    $sqlUpdateFolio = 'UPDATE folios SET total='.$fill['total'].',cantidad='.$_POST['cantidades'].' WHERE orden="'.$_POST['orden'].'"';
                     $resultFolio = mysqli_query($con,$sqlUpdateFolio);
 
 
@@ -122,7 +122,7 @@ if($con){
                     $sqlUpdate = 'UPDATE registro_usuario  SET cantidad='.$_POST['cantidad'].' WHERE id='.$_POST['id'].'';
                     $result = mysqli_query($con,$sqlUpdate);
 
-                    $sqlUpdateFolio = 'UPDATE folios SET total=total+'.$_POST['suma'].' WHERE orden="'.$_POST['orden'].'"';
+                    $sqlUpdateFolio = 'UPDATE folios SET total=total+'.$_POST['suma'].',cantidad='.$_POST['cantidades'].' WHERE orden="'.$_POST['orden'].'"';
                     $resultFolio = mysqli_query($con,$sqlUpdateFolio);
 
                     if($result && $resultFolio){
@@ -144,17 +144,18 @@ if($con){
             if($accion == 'delete'){
 
                 if($cambio){
-                    $sqlUpdate = 'UPDATE registro_usuario  SET delete_item="1",fecha_delete="'.$fecha_delete.'" WHERE id='.$_POST['id'].'';
-                    $result = mysqli_query($con,$sqlUpdate);
 
                     $sqlUpdatePrice  = 'UPDATE registro_usuario  SET precio='.$_POST['precio'].' WHERE orden="'.$_POST['orden'].'" AND codigo="'.$_POST['codigo'].'"';
                     $resultPrice = mysqli_query($con,$sqlUpdatePrice);
+
+                    $sqlUpdate = 'DELETE FROM registro_usuario  WHERE id="'.$_POST['id'].'"';
+                    $result = mysqli_query($con,$sqlUpdate);
                     
-                    $consulta = 'SELECT SUM(precio*cantidad) as total FROM registro_usuario WHERE orden="'.$_POST['orden'].'" AND delete_item != "1"';
+                    $consulta = 'SELECT SUM(precio*cantidad) as total FROM registro_usuario WHERE orden="'.$_POST['orden'].'"';
                     $resPedido = mysqli_query($con,$consulta);
                     $fill = mysqli_fetch_assoc($resPedido);
 
-                    $sqlUpdateFolio = 'UPDATE folios SET total='.$fill['total'].' WHERE orden="'.$_POST['orden'].'"';
+                    $sqlUpdateFolio = 'UPDATE folios SET total='.$fill['total'].',cantidad='.$_POST['cantidades'].' WHERE orden="'.$_POST['orden'].'"';
                     $resultFolio = mysqli_query($con,$sqlUpdateFolio);
 
 
@@ -172,10 +173,10 @@ if($con){
                         echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
                     }
                 }else{
-                    $sqlUpdate = 'UPDATE registro_usuario  SET delete_item="1",fecha_delete="'.$fecha_delete.'" WHERE id='.$_POST['id'].'';
+                    $sqlUpdate = 'DELETE FROM registro_usuario  WHERE id='.$_POST['id'].'';
                     $result = mysqli_query($con,$sqlUpdate);
 
-                    $sqlUpdateFolio = 'UPDATE folios SET total=total-'.$_POST['suma'].' WHERE orden="'.$_POST['orden'].'"';
+                    $sqlUpdateFolio = 'UPDATE folios SET total=total-'.$_POST['suma'].',cantidad='.$_POST['cantidades'].' WHERE orden="'.$_POST['orden'].'"';
                     $resultFolio = mysqli_query($con,$sqlUpdateFolio);
 
                     if($result && $resultFolio){
@@ -205,6 +206,7 @@ if($con){
                     $exist = mysqli_fetch_assoc($resultConsulta);
 
                     $result = '';
+
                     if($exist){
                         $sqlUpdate = 'UPDATE registro_usuario  SET cantidad='.$_POST['cantidad'].' WHERE id_producto='.$_POST['id_producto'].'';
                         $result = mysqli_query($con,$sqlUpdate);
@@ -214,14 +216,14 @@ if($con){
                         $result = mysqli_query($con,$sqlInsert);
                     }
 
-                    $sqlUpdatePrice  = 'UPDATE registro_usuario  SET precio='.$_POST['precio'].' WHERE orden="'.$_POST['orden'].'" AND codigo="'.$_POST['codigo'].'"';
+                    $sqlUpdatePrice  = 'UPDATE registro_usuario  SET precio="'.$_POST['precio'].'" WHERE orden="'.$_POST['orden'].'" AND codigo="'.$_POST['codigo'].'"';
                     $resultPrice = mysqli_query($con,$sqlUpdatePrice);
                     
-                    $consulta = 'SELECT SUM(precio*cantidad) as total FROM registro_usuario WHERE orden="'.$_POST['orden'].'" AND delete_item!="1"';
+                    $consulta = 'SELECT SUM(precio*cantidad) as total FROM registro_usuario WHERE orden="'.$_POST['orden'].'"';
                     $resPedido = mysqli_query($con,$consulta);
                     $fill = mysqli_fetch_assoc($resPedido);
 
-                    $sqlUpdateFolio = 'UPDATE folios SET total='.$fill['total'].' WHERE orden="'.$_POST['orden'].'"';
+                    $sqlUpdateFolio = 'UPDATE folios SET total="'.$fill['total'].'",cantidad=catidad+'.$_POST['cantidad'].' WHERE orden="'.$_POST['orden'].'"';
                     $resultFolio = mysqli_query($con,$sqlUpdateFolio);
 
                     if($result && $resultPrice && $resultFolio){
@@ -260,7 +262,7 @@ if($con){
                     }
 
 
-                    $sqlUpdateFolio = 'UPDATE folios SET total=total+'.$_POST['suma'].' WHERE orden="'.$_POST['orden'].'"';
+                    $sqlUpdateFolio = 'UPDATE folios SET total=total+'.$_POST['suma'].',cantidad=cantidad+'.$_POST['cantidad'].' WHERE orden="'.$_POST['orden'].'"';
                     $resultFolio = mysqli_query($con,$sqlUpdateFolio);
 
                     if($result  && $resultFolio){

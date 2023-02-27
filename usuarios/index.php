@@ -53,6 +53,27 @@ if($con){
                         $i++;
                     }
                 echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                }else if(isset($_GET['especial'])){
+                    $sqlPagados = 'SELECT * FROM usuario WHERE especial = "si"';
+                    $resultPagados = mysqli_query($con,$sqlPagados);
+                    $i=0;
+                    while($row = mysqli_fetch_assoc($resultPagados)){
+                        $response[$i]['id'] = $row['id'];
+                        $response[$i]['fullName'] = $row['nombre'].' '.$row['apellido'];
+                        $response[$i]['nombre'] = $row['nombre'];
+                        $response[$i]['apellido'] = $row['apellido'];
+                        $response[$i]['direccion'] = $row['direccion'];
+                        $response[$i]['colonia'] = $row['colonia'];
+                        $response[$i]['ciudad'] = $row['ciudad'];
+                        $response[$i]['estado'] = $row['estado'];
+                        $response[$i]['codigop'] = $row['codigop'];
+                        $response[$i]['telefono'] = $row['telefono'];
+                        $response[$i]['correo'] = $row['correo'];
+                        $response[$i]['rfc'] = $row['rfc'];
+                        $response[$i]['orden'] = $row['orden'];
+                        $i++;
+                    }
+                    echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
                 }else{
                     $sqlPagados = 'SELECT * FROM usuario';
                     $resultPagados = mysqli_query($con,$sqlPagados);

@@ -10,7 +10,7 @@ $fecha_actual = date('Y-m-d H:i:s');
 $response = array();
 // insertamos cabeceras para permisos 
 header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept,Authorization, Access-Control-Request-Method");
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Authorization, Accept, Access-Control-Request-Method");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 header("Content-Type: JSON");
@@ -63,11 +63,14 @@ if($con){
         if($methodApi == 'POST'){
             $_POST = json_decode(file_get_contents('php://input'),true);
             //ASIGNAMOS DATOS datos de pedido y orden en variables, bandera y array  para la cantidad de productos disponibles
-            $data =  $_POST['datos'];
-            $orden = $_POST['orden'];
-            $band = true;
-            $i=0;
-            $cuentas = [];
+            $data     =  $_POST['datos'];
+            $methods  =  $_POST['metodos'];
+            $orden    =  $_POST['orden'];
+            $band     =  true;
+            $flag     =  true;
+            $i        =  0;
+            $k        =  0;
+            $cuentas  =  [];
 
             $sqltoken = 'SELECT token_venta  FROM tokens_acceso WHERE id=1';
             $restoken = mysqli_query($con,$sqltoken);
@@ -143,11 +146,21 @@ if($con){
                 $sqlFolios = 'UPDATE folios SET estatus="Pagado",fecha_procesado="'.$fecha_actual.'",fecha_pago="'.$fecha_actual.'",venta_paqueteria="'.$_POST['venta_paqueteria'].'",saldo_pendiente="'.$_POST['saldo_pendiente'].'",vendedora="'.$_POST['vendedora'].'",iva="'.$_POST['iva'].'",seguro="'.$_POST['seguro'].'",fecha_entrega="'.$_POST['fecha_entrega'].'",monto="'.$_POST['monto'].'",cajas="'.$_POST['cajas'].'",nota="'.$_POST['nota'].'",efectivo="'.$_POST['efectivo'].'" WHERE orden="'.$orden.'"';
                 $resultFolios = mysqli_query($con,$sqlFolios);
 
-                //insertar nuevo registro en pagos
-                $sqlPagos = 'INSERT INTO pagos (orden,fecha,monto,banco,metodos_pago) VALUES ("'.$orden.'","'.$fecha_actual.'",'.$_POST['monto'].',"'.$_POST['banco'].'","'.$_POST['metodos'].'")';
-                $resultPagos = mysqli_query($con,$sqlPagos);  
+                //insertar nuevos registros en pagos
+                while($k<count($methods))
+                {
+                    $sqlInsertPago = 'INSERT INTO pagos (orden,fecha,monto,banco,metodos_pago) VALUES ("'.$orden.'","'.$fecha_actual.'",'.$methods[$k]['monto'].',"'.$methods[$k]['banco'].'","'.$methods[$k]['metodo'].'")';
+                    $resultPago = mysqli_query($con,$sqlInsertPago);
 
-                if($band && $resulRegistro_usuario && $resultFolios && $resultPagos){
+                    if($resultPago){
+                        $k++;
+                    }else{
+                        $flag = false;
+                        break;
+                    }
+                }
+
+                if($band && $resulRegistro_usuario && $resultFolios && $flag){
                     $con->commit();
                     header("HTTP/1.1 200 OK");
                     $response['status'] = 200;
