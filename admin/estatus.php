@@ -6,6 +6,7 @@ include '../conexion/conn.php';
 
 // declarar array para respuestas 
 $response = array();
+$errores  = array();
 
 // insertamos cabeceras para permisos 
 
@@ -26,21 +27,49 @@ if($con){
         switch($methodApi){
             // metodo post 
             case 'POST':
-             $_POST = json_decode(file_get_contents('php://input'),true);
-             //echo "guardar informacion data: =>".json_encode($_POST);
-             $sql = 'INSERT INTO admin_estatus (nombre_estatus,active,descripcion,color_estatus) VALUES ("'.$_POST['nombre_estatus'].'","'.$_POST['active'].'","'.$_POST['descripcion'].'","'.$_POST['color'].'")';
-             $result = mysqli_query($con,$sql);
-             if($result){
-                header("HTTP/1.1 200 OK");
-                $response['status'] = 200;
-                $response['mensaje'] = 'Registro creado correctamente';
-                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-            }else{
+            //CONVERTIMOS A POST LOS DATOS RECIBIDOS EN  FORMATO JSON
+            $_POST = json_decode(file_get_contents('php://input'),true);
+            //asignamos datos a variables
+            $nombre      = $_POST['nombre_estatus'];
+            $active      = $_POST['active'];
+            $descripcion = $_POST['descripcion'];
+            $color       = $_POST['color'];
+            //validacion para no recibir campos vacios
+            if($nombre == '' || $active == '' || $descripcion == '' ||  $color == ''){
                 header("HTTP/1.1 400");
                 $response['status'] = 400;
-                $response['mensaje'] = 'No se pudo Guardar el registro';
-                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-            }
+                $response['mensaje'] = 'Debes agregar todos los campos, existen campos vacios';
+                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); 
+            }else{
+                //preparar sentencia sql
+                if (!($sentencia = $con->prepare("INSERT INTO admin_estatus (nombre_estatus,active,descripcion,color_estatus) VALUES (?,?,?,?)"))) {
+                    echo "Falló la preparación: (" . $con->errno . ") " . $con->error;
+                    $errores = 'Falló la preparacion'.$con->errno.'';
+                }
+                //vincular datos ,parametros y tipos de datos
+                if (!$sentencia->bind_param("ssss", $nombre,$active,$descripcion,$color)) {
+                    echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);    
+                    echo "Falló la vinculación de parámetros: (" . $sentencia->errno . ") " . $sentencia->error;
+                    $errores = 'Falló la vinculación de parámetros.'.$sentencia->errno.'';
+                }
+    
+                if (!$sentencia->execute()) {
+                    echo "Falló la ejecución: (".$sentencia->errno.") " . $sentencia->error;
+                    header("HTTP/1.1 400");
+                    $response['status'] = 400;
+                    $response['mensaje'] = 'No se pudo Guardar el registro';
+                    echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); 
+                    $con->close();               
+                }else{
+                    header("HTTP/1.1 200 OK");
+                    $response['status'] = 200;
+                    $response['mensaje'] = 'Registro creado correctamente';
+                    $response['errores'] = $errores;
+                    echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                    $con->close();
+                } 
+            }         
+
             break;
             // metodo get 
             case 'GET':
@@ -109,4 +138,3 @@ if($con){
 }else{
     echo "DB FOUND CONNECTED";
 }
-?>

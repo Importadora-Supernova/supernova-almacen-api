@@ -29,26 +29,44 @@ if($con){
             case 'POST':
              // post
             $_POST = json_decode(file_get_contents('php://input'),true);
+            
+            $usuario = $_POST['usuario'];
+            $pass    = md5($_POST['password']);
+            $tipo    = $_POST['tipo'];
+            $estatus = '1';
 
-            $pass = md5($_POST['pass_usuario']);
-
-
-            $sqlInsert = 'INSERT INTO app_usuarios_bodega (usuario_bodega,pass_usuario,tipo_usuario,token,expire_token,estatus_user,fecha_created) VALUES
-            ("'.$_POST['usuario_bodega'].'","'.$pass.'","'.$_POST['tipo_usuario'].'","","","1","'.$fecha_actual.'")';
-
-            $result = mysqli_query($con,$sqlInsert);
-
-            if($result){
-                header("HTTP/1.1 200 OK");
-                $response['status'] = 200;
-                $response['mensaje'] = 'Registro creado correctamente';
-                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-            }else{
+            if($usuario == '' || $pass == '' || is_null($tipo)){
                 header("HTTP/1.1 400");
                 $response['status'] = 400;
-                $response['mensaje'] = 'No se pudo Guardar el registro';
-                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                $response['mensaje'] = 'Debes agregar todos los campos, existen campos vacios';
+                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); 
+            }else{
+                //preparar sentencia
+                if(!($sentencia = $con->prepare("INSERT INTO app_usuarios_bodega (usuario_bodega,pass_usuario,tipo_usuario,estatus_user,fecha_created) VALUES (?,?,?,?,?)"))){
+                    echo "Falló la preparación: (" . $con->errno . ") " . $con->error;
+                }
+
+                //Alistar parametros y tipo de datos
+                if(!$sentencia->bind_param("ssiss", $usuario,$pass,$tipo,$estatus,$fecha_actual)){
+                    echo "Falló la vinculación de parámetros: (" . $sentencia->errno . ") " . $sentencia->error;
+                }
+
+                if (!$sentencia->execute()) {
+                    echo "Falló la ejecución: (".$sentencia->errno.") " . $sentencia->error;
+                    header("HTTP/1.1 400");
+                    $response['status'] = 400;
+                    $response['mensaje'] = 'No se pudo Guardar el registro';
+                    echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                    $con->close();                
+                }else{
+                    header("HTTP/1.1 200 OK");
+                    $response['status'] = 200;
+                    $response['mensaje'] = 'Registro creado correctamente';
+                    echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                    $con->close();
+                } 
             }
+
             break;
             // metodo get 
             case 'GET':

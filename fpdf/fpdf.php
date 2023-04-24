@@ -387,7 +387,7 @@ function Footer()
 
 	$this->SetFont('Arial','I',8);
 	
-	$this->Cell(0,10,utf8_decode('©2022 Importadora Supernova Todos los derechos reservados - Página ').$this->PageNo().'',0,0,'C');
+	$this->Cell(0,10,utf8_decode('©2023 Importadora Supernova Todos los derechos reservados - Página ').$this->PageNo().'',0,0,'C');
 }
 
 function PageNo()

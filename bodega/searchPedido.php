@@ -19,6 +19,12 @@ $fecha = date('Y-m-d H:i:s');
 
 // validamos si hay conexion 
 if($con){
+
+        function validarFecha($date, $format = 'Y-m-d H:i:s')
+        {
+            $d = DateTime::createFromFormat($format, $date);
+            return $d && $d->format($format) == $date;
+        }
     
         $methodApi = $_SERVER['REQUEST_METHOD'];
 
@@ -69,7 +75,7 @@ if($con){
 
                  echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
               } else if(isset($_GET['pagados'])){
-                    $sqlPagados = 'SELECT * FROM folios WHERE estatus="Pagado" or estatus="Pausado" or estatus="Resuelto"';
+                    $sqlPagados = 'SELECT * FROM folios WHERE estatus="Pagado" or estatus="Pausado" or estatus="Resuelto" order by fecha_entrega';
                     $resultPagados = mysqli_query($con,$sqlPagados);
                     $i=0;
                     while($row = mysqli_fetch_assoc($resultPagados)){
@@ -87,6 +93,7 @@ if($con){
                         $response[$i]['fecha_almacen'] = $row['fecha_almacen'];
                         $response[$i]['fecha_salida'] = $row['fecha_salida'];
                         $response[$i]['fecha_entrega'] = $row['fecha_entrega'];
+                        $response[$i]['entrega'] = validarFecha($row['fecha_entrega']);
                         $i++;
                     }
 

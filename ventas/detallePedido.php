@@ -223,7 +223,7 @@ if($con){
                     $resPedido = mysqli_query($con,$consulta);
                     $fill = mysqli_fetch_assoc($resPedido);
 
-                    $sqlUpdateFolio = 'UPDATE folios SET total="'.$fill['total'].'",cantidad=catidad+'.$_POST['cantidad'].' WHERE orden="'.$_POST['orden'].'"';
+                    $sqlUpdateFolio = 'UPDATE folios SET total="'.$fill['total'].'",cantidad=cantidad+'.$_POST['cantidad'].' WHERE orden="'.$_POST['orden'].'"';
                     $resultFolio = mysqli_query($con,$sqlUpdateFolio);
 
                     if($result && $resultPrice && $resultFolio){

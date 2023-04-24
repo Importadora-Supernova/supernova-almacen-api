@@ -42,10 +42,9 @@ if($con){
             if($methodApi  == 'POST'){
 
                 $_POST = json_decode(file_get_contents('php://input'),true);
-                // $select = 'SELECT *FROM usuarios_almacen WHERE id_user_almacen=1';
-                // $resultado = mysqli_query($con,$select);
-                // $fila = mysqli_fetch_assoc($resultado);
-                // $response['usuario'] = $fila;
+
+
+                $fecha_corte = $_POST['fecha'];
 
                 $sqlMontoTotal = 'SELECT SUM(monto) as total FROM pagos WHERE fecha LIKE "'.$_POST['fecha'].'%" ';
                 $result = mysqli_query($con,$sqlMontoTotal);

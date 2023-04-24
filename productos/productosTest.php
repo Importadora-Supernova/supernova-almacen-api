@@ -1,16 +1,13 @@
 <?php
 // conexion con base de datos 
 include '../conexion/conn.php';
-//incluir middleware
-include '../middleware/midleware.php';
-
 // declarar array para respuestas 
 $response = array();
 
 // insertamos cabeceras para permisos 
 
 header('Access-Control-Allow-Origin:*');
-header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept,Authorization, Access-Control-Request-Method");
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 header("Content-Type: JSON");
@@ -22,9 +19,7 @@ header('Content-Type: application/json;charset=utf-8');
 if($con){
 
     $methodApi = $_SERVER['REQUEST_METHOD'];
-    if($validate === 'validado'){
         if($methodApi == 'GET'){
-
             if(isset($_GET['codigo'])){
                 // es para obtener todos los registros  por codigo
                 $sql = 'SELECT *FROM productos where codigo="'.$_GET['codigo'].'"';
@@ -51,23 +46,6 @@ if($con){
                         $response['nombre'] = $row['nombre'];
                         $response['codigo'] = $row['codigo'];
                         $response['almacen'] = $row['almacen'];
-                        $i++;
-                    }
-                    echo json_encode($response,JSON_PRETTY_PRINT);
-                } if(isset($_GET['nuevo'])){
-                    $sql = 'SELECT *FROM productos  WHERE nuevo="si"';
-                    $result = mysqli_query($con,$sql);
-                    $i=0;
-                    while($row = mysqli_fetch_assoc($result)){
-                        $response[$i]['id'] = $row['id'];
-                        $response[$i]['nombre'] = $row['nombre'];
-                        $response[$i]['codigo'] = $row['codigo'];
-                        $response[$i]['descripcion'] = $row['descripcion'];
-                        $response[$i]['codigo'] = $row['codigo'];
-                        $response[$i]['visitas'] = $row['visitas'];
-                        $response[$i]['descuento'] =  $row['descuento'];
-                        $response[$i]['descuento_precio_docena'] =  $row['descuento_precio_docena'];
-                        $response[$i]['preciou'] =  $row['preciou'];
                         $i++;
                     }
                     echo json_encode($response,JSON_PRETTY_PRINT);
@@ -137,30 +115,6 @@ if($con){
                 echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
             }
         }
-
-        if($methodApi == 'PUT'){
-            $_PUT = json_decode(file_get_contents('php://input'),true);
-            $sqlUpdateSub =  'UPDATE productos SET id_subcategoria='.$_PUT['id_subcategoria'].' WHERE id='.$_GET['id_producto'].'';
-            $resUpdate = mysqli_query($con,$sqlUpdateSub);
-
-            if($resUpdate){
-                header("HTTP/1.1 200 OK");
-                $response['status'] = 200;
-                $response['mensaje'] = 'Registro actualizado correctamente';
-                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-            }else{
-                header("HTTP/1.1 400");
-                $response['status'] = 400;
-                $response['mensaje'] = 'No se pudo acualizar el registro';
-                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-            }
-        }
-    }else{
-        header("HTTP/1.1 200");
-        $response['status'] = 401;
-        $response['mensaje'] = 'Token '.$validate;
-        echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-    }
   
 }else{
     echo "DB FOUND CONNECTED";

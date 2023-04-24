@@ -24,41 +24,66 @@ if($con){
         switch($methodApi){
             // metodo post 
             case 'POST':
-             $_POST = json_decode(file_get_contents('php://input'),true);
+            $_POST = json_decode(file_get_contents('php://input'),true);
 
-             $sqlInsert = 'INSERT INTO app_modulos_bodega (nombre_modulo,ruta,icono,estatus_modulo) VALUES ("'.$_POST['nombre_modulo'].'","'.$_POST['ruta'].'","'.$_POST['icono'].'","'.$_POST['estatus'].'")';
-             $result = mysqli_query($con,$sqlInsert);
+            $nombre  = $_POST['nombre_modulo'];
+            $ruta    = $_POST['ruta'];
+            $icono   = $_POST['icono'];
+            $estatus = $_POST['estatus'];
 
-             if($result){
-                header("HTTP/1.1 200");
-                $response['mensaje'] = 'EL modulo se registro correctamente';
-                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-             }else{
+            if($nombre == '' || $ruta == '' || $icono == '' || $estatus == ''){
                 header("HTTP/1.1 400");
-                $response['mensaje'] = 'Ocurrio un error,No se podo completar la accion';
-                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-             }
+                $response['status'] = 400;
+                $response['mensaje'] = 'Debes agregar todos los campos, existen campos vacios';
+                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); 
+            }else{
+                //preparar sentencia 
+                if(!($sentencia = $con->prepare("INSERT INTO app_modulos_bodega (nombre_modulo,ruta,icono,estatus_modulo) VALUES (?,?,?,?)"))){
+                    echo "Falló la preparación: (" . $con->errno . ") " . $con->error;
+                }
+
+                //agregar parametros y tipo de datos
+                if(!$sentencia->bind_param("ssss",$nombre,$ruta,$icono,$estatus)){
+                    echo "Falló la vinculación de parámetros: (" . $sentencia->errno . ") " . $sentencia->error;
+                }
+
+                
+                if (!$sentencia->execute()) {
+                    echo "Falló la ejecución: (".$sentencia->errno.") " . $sentencia->error;
+                    header("HTTP/1.1 400");
+                    $response['status'] = 400;
+                    $response['mensaje'] = 'No se pudo Guardar el registro';
+                    echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                    $con->close();                
+                }else{
+                    header("HTTP/1.1 200 OK");
+                    $response['status'] = 200;
+                    $response['mensaje'] = 'Registro creado correctamente';
+                    echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                    $con->close();
+                } 
+            }
              //
             break;
             // metodo get 
             case 'GET':
              // para obtener un registro especifico
-             if(isset($_GET['id'])){ 
-                 $sql = 'SELECT *FROM app_modulos_bodega  WHERE id_modulo='.$_GET['id'].'';
-                 $result = mysqli_query($con,$sql);
-                 $i=0;
-                 while($row = mysqli_fetch_assoc($result)){
+            if(isset($_GET['id'])){ 
+                $sql = 'SELECT *FROM app_modulos_bodega  WHERE id_modulo='.$_GET['id'].'';
+                $result = mysqli_query($con,$sql);
+                $i=0;
+                while($row = mysqli_fetch_assoc($result)){
                     $response['id'] = $row['id_modulo'];
                     $response['nombre_modulo'] = $row['nombre_modulo'];
                     $response['ruta'] = $row['ruta'];
                     $response['icono'] = $row['icono'];
                     $response['estatus_modulo'] = $row['estatus_modulo'] == "1" ? true : false;
                     $response['posicion'] = $row['posicion'];
-                     $i++;
-                 }
+                    $i++;
+                }
 
-                 echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-              } else {
+                echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+            } else {
                     $sqlPagados = 'SELECT * FROM app_modulos_bodega';
                     $resultPagados = mysqli_query($con,$sqlPagados);
                     $i=0;
@@ -75,7 +100,7 @@ if($con){
                     }
 
                     echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-                 }
+                }
             break;
 
         }

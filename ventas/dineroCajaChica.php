@@ -104,7 +104,10 @@ if($con){
                         $sqlInsert = 'INSERT INTO historial_ingreso (saldo,fecha) VALUES ("'.$_POST['monto'].'","'.$fecha_actual.'")';
                         $resultInsert = mysqli_query($con,$sqlInsert);
 
-                        if($resultUpdate && $resultInsert){
+                        $sqlInsertSalida = 'INSERT INTO salida_ventas (fecha,cantidad,motivo)  VALUES ("'.$fecha_actual.'","'.$_POST['monto'].'","caja chica")';
+                        $result = mysqli_query($con,$sqlInsertSalida);
+
+                        if($resultUpdate && $resultInsert && $result){
                             header("HTTP/1.1 200");
                             $con->commit();
                             $response['mensaje'] = 'Dinero agregado exitosamente';

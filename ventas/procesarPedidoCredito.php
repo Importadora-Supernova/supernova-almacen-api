@@ -145,7 +145,7 @@ if($con){
                 $resulRegistro_usuario = mysqli_query($con,$sqlRegistro_usuario);
     
                 //actualizar folios
-                $sqlFolios = 'UPDATE folios SET estatus="Pendiente",fecha_procesado="'.$fecha_actual.'",fecha_pago="'.$fecha_actual.'",cajas="'.$_POST['cajas'].'",nota="'.$_POST['nota'].'",vendedora="'.$_POST['vendedora'].'",pendiente="Pendiente" WHERE orden="'.$orden.'"';
+                $sqlFolios = 'UPDATE folios SET estatus="Pagado",fecha_procesado="'.$fecha_actual.'",fecha_pago="'.$fecha_actual.'",cajas="'.$_POST['cajas'].'",nota="'.$_POST['nota'].'",vendedora="'.$_POST['vendedora'].'",pendiente="Pendiente" WHERE orden="'.$orden.'"';
                 $resultFolios = mysqli_query($con,$sqlFolios);
 
     

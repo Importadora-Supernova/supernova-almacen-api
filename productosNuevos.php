@@ -1,8 +1,7 @@
 <?php
 // conexion con base de datos 
-include '../conexion/conn.php';
+include 'conexion/conn.php';
 //incluir middleware
-include '../middleware/midleware.php';
 
 // declarar array para respuestas 
 $response = array();
@@ -10,7 +9,7 @@ $response = array();
 // insertamos cabeceras para permisos 
 
 header('Access-Control-Allow-Origin:*');
-header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept,Authorization, Access-Control-Request-Method");
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept,Access-Control-Request-Method");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 header("Content-Type: JSON");
@@ -22,7 +21,6 @@ header('Content-Type: application/json;charset=utf-8');
 if($con){
 
     $methodApi = $_SERVER['REQUEST_METHOD'];
-    if($validate === 'validado'){
         if($methodApi == 'GET'){
 
             if(isset($_GET['codigo'])){
@@ -120,48 +118,6 @@ if($con){
             }
         }
 
-        if($methodApi == 'POST'){
-            $_POST = json_decode(file_get_contents('php://input'),true);
-            $sqlUpdateProducto = 'UPDATE productos SET estatus='.$_POST['estatus'].' WHERE  id='.$_POST['id_producto'].'';
-            $resUpdate = mysqli_query($con,$sqlUpdateProducto);
-
-            if($resUpdate){
-                header("HTTP/1.1 200 OK");
-                $response['status'] = 200;
-                $response['mensaje'] = 'Registro actualizado correctamente';
-                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-            }else{
-                header("HTTP/1.1 400");
-                $response['status'] = 400;
-                $response['mensaje'] = 'No se pudo Guardar el registro';
-                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-            }
-        }
-
-        if($methodApi == 'PUT'){
-            $_PUT = json_decode(file_get_contents('php://input'),true);
-            $sqlUpdateSub =  'UPDATE productos SET id_subcategoria='.$_PUT['id_subcategoria'].' WHERE id='.$_GET['id_producto'].'';
-            $resUpdate = mysqli_query($con,$sqlUpdateSub);
-
-            if($resUpdate){
-                header("HTTP/1.1 200 OK");
-                $response['status'] = 200;
-                $response['mensaje'] = 'Registro actualizado correctamente';
-                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-            }else{
-                header("HTTP/1.1 400");
-                $response['status'] = 400;
-                $response['mensaje'] = 'No se pudo acualizar el registro';
-                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-            }
-        }
-    }else{
-        header("HTTP/1.1 200");
-        $response['status'] = 401;
-        $response['mensaje'] = 'Token '.$validate;
-        echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-    }
-  
 }else{
     echo "DB FOUND CONNECTED";
 }

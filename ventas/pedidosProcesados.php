@@ -47,6 +47,8 @@ if($con){
                         $response[$i]['cantidad'] =  $row['cantidad'];
                         $response[$i]['total'] =  $row['total'];
                         $response[$i]['fecha'] =  $row['fecha_procesado'];
+                        $response[$i]['fecha_entrega'] =  $row['fecha_entrega'];
+                        $response[$i]['cajas'] =  $row['cajas'];
                         $response[$i]['estatus'] =  $row['estatus'];
                         $response[$i]['venta_paqueteria'] =  $row['venta_paqueteria'];
                         $response[$i]['saldo_pendiente'] = $row['saldo_pendiente'] == "" ? 0 :$row['saldo_pendiente']; 
@@ -66,6 +68,8 @@ if($con){
                             $response[$i]['paqueteria'] =  $row['paqueteria'];
                             $response[$i]['cantidad'] =  $row['cantidad'];
                             $response[$i]['total'] =  $row['total'];
+                            $response[$i]['fecha_entrega'] =  $row['fecha_entrega'];
+                            $response[$i]['cajas'] =  $row['cajas'];
                             $response[$i]['fecha'] =  $row['fecha_procesado'];
                             $response[$i]['estatus'] =  $row['estatus'];
                             $response[$i]['venta_paqueteria'] =  $row['venta_paqueteria'];
@@ -86,12 +90,28 @@ if($con){
                             $response[$i]['cantidad'] =  $row['cantidad'];
                             $response[$i]['total'] =  $row['total'];
                             $response[$i]['fecha'] =  $row['fecha_procesado'];
+                            $response[$i]['fecha_entrega'] =  $row['fecha_entrega'];
+                            $response[$i]['cajas'] =  $row['cajas'];
                             $response[$i]['estatus'] =  $row['estatus'];
                             $response[$i]['venta_paqueteria'] =  $row['venta_paqueteria'];    
                             $response[$i]['saldo_pendiente'] = $row['saldo_pendiente'] == "" ? 0 :$row['saldo_pendiente']; 
                             $i++;
                         }
                         header("HTTP/1.1 200 OK");
+                        echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                    }
+                break;
+
+                case 'PUT':
+                    $_PUT = json_decode(file_get_contents('php://input'),true);
+
+                    $sqlUpdate = 'UPDATE folios SET fecha_entrega="'.$_PUT['fecha_entrega'].'",cajas="'.$_PUT['cajas'].'" WHERE orden = "'.$_GET['orden'].'"';
+                    $resultUpdate = mysqli_query($con,$sqlUpdate);
+
+                    if($resultUpdate){
+                        header("HTTP/1.1 200 OK");
+                        $response['mensaje'] = 'Registro actualizado correctamente';
+                        $response['status'] = 200;
                         echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
                     }
                 break;

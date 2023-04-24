@@ -44,7 +44,7 @@ if($con){
             //insertar nuevos registros en pagos
             while($k<count($methods))
             {
-                $sqlInsertPago = 'INSERT INTO pagos (orden,fecha,monto,banco,metodos_pago) VALUES ("'.$orden.'","'.$fecha.'",'.$methods[$k]['monto'].',"'.$methods[$k]['banco'].'","'.$methods[$k]['metodo'].'")';
+                $sqlInsertPago = 'INSERT INTO pagos (orden,fecha,monto,banco) VALUES ("'.$orden.'","'.$fecha.'",'.$methods[$k]['monto'].',"'.$methods[$k]['banco'].'")';
                 $resultPago = mysqli_query($con,$sqlInsertPago);
                 if($resultPago){
                     $k++;
