@@ -1,7 +1,10 @@
 <?php
+require_once 'vendor/autoload.php';
 date_default_timezone_set('America/Mexico_City');
 // conexion con base de datos 
 include 'conexion/conn.php';
+
+use \Firebase\JWT\JWT;
 
 // declarar array para respuestas 
 $response = array();
@@ -91,32 +94,20 @@ $fecha_expire = date('Y-m-d '.$hora.':i:s');
        break;
        // metodo get 
        case 'GET':
-        // para obtener un registro especifico
-        if(isset($_GET['id'])){
-            $sql = 'SELECT *FROM estados  where id_status="'.$_GET['id'].'"';
-            $result = mysqli_query($con,$sql);
-            $i=0;
-            while($row = mysqli_fetch_assoc($result)){
-                $response['id'] = $row['id_status'];
-                $response['nombre_status'] = $row['nombre_status'];
-                $response['fecha_created'] = $row['fecha_created'];
-                $i++;
-            }
-            echo json_encode($response,JSON_PRETTY_PRINT);
-         } else{
+            // para obtener un registro especifico
+            // $clave_secreta = 'tu_clave_secreta';
+            // $payload = array(
+            //     "usuario" => "nombre_de_usuario",
+            //     "rol" => "rol_del_usuario"
+            // );
 
-             // es para obtener todos los registros 
-        //     $sql = 'select *from estados';
-        //     $result = mysqli_query($con,$sql);
-        //     $i=0;
-        //     while($row = mysqli_fetch_assoc($result)){
-        //         $response[$i]['id'] = $row['id_status'];
-        //         $response[$i]['nombre_status'] = $row['nombre_status'];
-        //         $response[$i]['fecha_created'] = $row['fecha_created'];
-        //         $i++;
-        //     }
-        //    echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-         }
+            // try {
+            //     $token = JWT::encode($payload, $clave_secreta, 'HS256');
+            //      echo $token;
+            // } catch (Exception $e) {
+            //     echo 'Error al codificar el token: ' . $e->getMessage();
+            // }
+            
        break;
        case 'PUT':
         $_PUT = json_decode(file_get_contents('php://input'),true);

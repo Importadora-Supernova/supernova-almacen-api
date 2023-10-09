@@ -3,7 +3,7 @@
 include '../conexion/conn.php';
 date_default_timezone_set('America/Mexico_City');
 //incluir middleware
-
+include '../middleware/validarToken.php';
 
 // declarar array para respuestas 
 $response = array();
@@ -11,7 +11,7 @@ $response = array();
 // insertamos cabeceras para permisos 
 
 header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept,Authorization, Access-Control-Request-Method");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 header("Content-Type: JSON");
@@ -21,7 +21,7 @@ $fecha_actual = date('Y-m-d H:i:s');
 
 // validamos si hay conexion 
 if($con){
-    
+    if($token_access['token']){
         $methodApi = $_SERVER['REQUEST_METHOD'];
 
         switch($methodApi){
@@ -84,7 +84,7 @@ if($con){
             // metodo get 
             case 'GET':
              // para obtener un registro especifico
-             if(isset($_GET['id'])){
+            if(isset($_GET['id'])){
                  $sql = 'SELECT  *FROM permisos_user WHERE id_user='.$_GET['id'].'';
                  $result = mysqli_query($con,$sql);
                  $i=0;
@@ -107,15 +107,18 @@ if($con){
                 }
             break;
             case 'PUT':
-             $_PUT = json_decode(file_get_contents('php://input'),true);
-             $sql = 'UPDATE almacenes SET nombre_almacen="'.$_PUT['nombre_almacen'].'", tipo="'.$PUT['tipo'].'", status="'.$PUT['status'].'"  WHERE id='.$_GET['id'].'';
-             $result = mysqli_query($con,$sql);
-             if($result)
-                     echo 'registro actualizado correctamente';
-                 else
-                     echo 'no se pudo actualizar';
-            break;
+                $_PUT = json_decode(file_get_contents('php://input'),true);
+                $sql = 'UPDATE almacenes SET nombre_almacen="'.$_PUT['nombre_almacen'].'", tipo="'.$PUT['tipo'].'", status="'.$PUT['status'].'"  WHERE id='.$_GET['id'].'';
+                $result = mysqli_query($con,$sql);
+                if($result)
+                        echo 'registro actualizado correctamente';
+                    else
+                        echo 'no se pudo actualizar';
+                break;
         }
+    }else{
+        echo $token_access['validate'];
+    }
     //echo "Informacion".file_get_contents('php://input');
 
 }else{

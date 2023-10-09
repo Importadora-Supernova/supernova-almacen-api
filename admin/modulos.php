@@ -8,7 +8,7 @@ $response = array();
 // insertamos cabeceras para permisos 
 
 header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type,Authorization,Accept, Access-Control-Request-Method");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 header("Content-Type: JSON");
@@ -83,7 +83,39 @@ if($con){
                 }
 
                 echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-            } else {
+            }else if(isset($_GET['admin'])){
+                $sql = 'SELECT *FROM app_modulos_bodega  WHERE departamento="Admin"';   
+                $result = mysqli_query($con,$sql);
+                $i=0;
+                while($row = mysqli_fetch_assoc($result)){
+                    $response[$i]['id'] = $row['id_modulo'];
+                    $response[$i]['nombre_modulo'] = $row['nombre_modulo'];
+                    $response[$i]['ruta'] = $row['ruta'];
+                    $response[$i]['icono'] = $row['icono'];
+                    $response[$i]['estatus_modulo'] = $row['estatus_modulo'] == "1" ? true : false;
+                    $response[$i]['departamento'] = $row['departamento'];
+                    $response[$i]['posicion'] = $row['posicion'];
+                    $i++;
+                }
+                echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+            }else if(isset($_GET['almacen'])){
+                    $sql = 'SELECT *FROM app_modulos_bodega  WHERE departamento=""';   
+                    $result = mysqli_query($con,$sql);
+                    $i=0;
+                    while($row = mysqli_fetch_assoc($result)){
+                        $response[$i]['id'] = $row['id_modulo'];
+                        $response[$i]['nombre_modulo'] = $row['nombre_modulo'];
+                        $response[$i]['ruta'] = $row['ruta'];
+                        $response[$i]['icono'] = $row['icono'];
+                        $response[$i]['estatus_modulo'] = $row['estatus_modulo'] == "1" ? true : false;
+                        $response[$i]['departamento'] = $row['departamento'];
+                        $response[$i]['posicion'] = $row['posicion'];
+                        $response[$i]['addView'] = false;  
+                        $response[$i]['addEdit'] = false;   
+                        $i++;
+                    }
+                    echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                 }else{
                     $sqlPagados = 'SELECT * FROM app_modulos_bodega';
                     $resultPagados = mysqli_query($con,$sqlPagados);
                     $i=0;

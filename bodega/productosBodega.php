@@ -67,10 +67,14 @@ if($con){
                             $response[$i]['preciom'] =  $row['preciom'];
                             $response[$i]['precioc'] =  $row['precioc'];
                             $response[$i]['preciov'] =  $row['preciov'];
+                            $response[$i]['precio_costo'] =  $row['precio_costo'];
                             $response[$i]['topem'] =  $row['topem'];
                             $response[$i]['topec'] =  $row['topec'];
                             $response[$i]['topev'] =  $row['topev'];
+                            $response[$i]['promocion'] =  $row['promocion'];
                             $response[$i]['descuento'] =  $row['descuento'];
+                            $response[$i]['descuento_general'] =  $row['descuento_general'];
+                            $response[$i]['descuento_especial'] =  $row['descuento_especial'];
                             $response[$i]['descuento_precio_docena'] =  $row['descuento_precio_docena'];
                             if($row['estatus'] == "0"){
                                 $response[$i]['estatus'] = false;

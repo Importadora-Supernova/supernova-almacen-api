@@ -9,7 +9,7 @@ $response = array();
 // insertamos cabeceras para permisos 
 
 header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept,Authorization, Access-Control-Request-Method");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 header("Content-Type: JSON");
@@ -115,11 +115,16 @@ if($con){
        // metodo get 
        case 'GET':
         // para obtener un registro especifico
-            if(isset($_GET['id'])){
+            if(isset($_GET['orden'])){
                 //
-             } else{
-
-             }
+                $sql = 'SELECT paqueteria FROM folios WHERE orden="'.$_GET['orden'].'"';
+                $resultado = mysqli_query($con,$sql);
+                $fill = mysqli_fetch_assoc($resultado);
+                $response['paqueteria'] = $fill['paqueteria'];
+                header("HTTP/1.1 200 OK");
+                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                $con->close();
+            } 
        break;
    }
 }else{

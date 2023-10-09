@@ -8,7 +8,7 @@ $response = array();
 // insertamos cabeceras para permisos 
 
 header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept,Authorization,Access-Control-Request-Method");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 header("Content-Type: JSON");
@@ -39,6 +39,77 @@ if($con){
         }
         echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
 
+    }
+
+    if($methodApi == 'POST'){
+
+        try
+        {
+            $_POST = json_decode(file_get_contents('php://input'),true);
+
+            $con->autocommit(false);
+            $orden       = $_POST['orden'];
+            $accion      = $_POST['accion'];
+            $observacion = $_POST['observacion'];
+            $saldo       = intval($_POST['saldo']); 
+            $id_usuario  = $_POST['id_usuario'];
+
+            if($accion == 'Saldo a favor'){
+                $sql = 'INSERT INTO saldo_favor (id_usuario,orden,descripcion,saldo,fecha_register) VALUES ('.$id_usuario.',"'.$orden.'","'.$accion.'",'.$saldo.',"'.$fecha.'")';
+                $result = mysqli_query($con,$sql);
+
+                $sqlUpdate = 'UPDATE usuario SET saldo_favor=saldo_favor+'.$saldo.' WHERE id='.$id_usuario.'';
+                $resultado = mysqli_query($con,$sqlUpdate);
+
+                if($result != 1 || $resultado != 1){
+                    $con->rollback();
+                    $con->close();
+                    header("HTTP/1.1 400");
+                    $response['mensaje'] = 'Ocurrio un error,No se podo completar la accion';
+                    echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                }
+
+            }
+            
+            $sqlUpdateFolio = 'UPDATE folios SET estatus="Resuelto" WHERE orden=?';
+            $sqlUpdateNotification = 'UPDATE notificaciones SET accion=?,observacion=?,fecha_resuelto=? WHERE orden=?';
+            
+            $stmt = $con->prepare($sqlUpdateNotification);
+            $stmt->bind_param("ssss",$accion,$observacion,$fecha,$orden);
+            $result = $stmt->execute();
+
+            if($result || $result == 1){
+                $stmtFolio = $con->prepare($sqlUpdateFolio);
+                $stmtFolio->bind_param("s",$orden);
+                $resultUpdate = $stmtFolio->execute();
+                if($resultUpdate || $resultUpdate == 1){
+                    $con->commit();
+                    $con->close();
+                    header("HTTP/1.1 200");
+                    $response['mensaje'] = 'La incidencia de la orden fue resuelta';
+                    echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                }else{
+                    $con->rollback();
+                    $con->close();
+                    header("HTTP/1.1 400");
+                    $response['mensaje'] = 'Ocurrio un error,No se podo completar la accion';
+                    echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                }
+            }else{
+                $con->rollback();
+                $con->close();
+                header("HTTP/1.1 400");
+                $response['mensaje'] = 'Ocurrio un error,No se podo completar la accion';
+                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                }
+        }catch(Exception $e)
+        {
+            $con->rollback();
+            $con->close();
+            header("HTTP/1.1 400");
+            $response['mensaje'] = $e->getMessage();
+            echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+        }
     }
 }else{
     echo "DB FOUND CONNECTED";

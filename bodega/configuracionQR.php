@@ -6,7 +6,7 @@ $response = array();
 // insertamos cabeceras para permisos 
 
 header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept,Authorization, Access-Control-Request-Method");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 header("Content-Type: JSON");
@@ -18,7 +18,7 @@ if($con){
         $methodApi = $_SERVER['REQUEST_METHOD'];
 
         
-              if($methodApi == 'GET'){
+            if($methodApi == 'GET'){
                     $sql = 'SELECT * FROM `folios` WHERE estatus="Listo para salida" or estatus="Esperando por guia" or estatus="Medidas enviadas" or estatus="Guia enviada"';
                     $result = mysqli_query($con,$sql);
                     $i=0;

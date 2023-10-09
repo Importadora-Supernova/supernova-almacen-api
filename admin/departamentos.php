@@ -2,6 +2,7 @@
 // conexion con base de datos 
 include '../conexion/conn.php';
 //incluir middleware
+include '../middleware/validarToken.php';
 
 
 // declarar array para respuestas 
@@ -13,7 +14,7 @@ $fecha = date('Y-m-d H:i:s');
 // insertamos cabeceras para permisos 
 
 header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type,Authorization, Accept, Access-Control-Request-Method");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 header("Content-Type: JSON");
@@ -22,6 +23,7 @@ header('Content-Type: application/json;charset=utf-8');
 // validamos si hay conexion 
 if($con){
     
+    if($token_access['token']){
         $methodApi = $_SERVER['REQUEST_METHOD'];
 
         switch($methodApi){
@@ -138,6 +140,9 @@ if($con){
             break;
 
         }
+    }else{
+        echo $token_access['validate'];
+    }
     //echo "Informacion".file_get_contents('php://input');
 
 }else{

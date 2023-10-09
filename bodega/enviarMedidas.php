@@ -7,7 +7,7 @@ $response = array();
 // insertamos cabeceras para permisos 
 
 header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept,Authorization, Access-Control-Request-Method");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 header("Content-Type: JSON");
@@ -56,25 +56,24 @@ if($con){
     }
 
     if($methodApi == 'GET'){
-        $sql = 'SELECT *FROM view_pedidos_medidas';
-        $result = mysqli_query($con,$sql);
-
-        $i=0;
-        while($row = mysqli_fetch_assoc($result)){
-            $response[$i]['orden'] =  $row['orden'];
-            $response[$i]['nombres'] =  $row['nombres'];
-            $response[$i]['paqueteria'] =  $row['paqueteria'];
-            $response[$i]['fecha_almacen'] =  $row['fecha_almacen'];
-            $response[$i]['cajas'] =  $row['cajas'];
-            $response[$i]['bolsas'] = $row['bolsas'];
-            $response[$i]['direccion'] =  $row['direcciond'];
-            $response[$i]['ciudad'] =  $row['ciudadd'];
-            $response[$i]['estado'] =  $row['estadod'];
-            $response[$i]['codigop'] =  $row['codigopd'];
-            $response[$i]['telefono'] =  $row['telefonod'];
-            $i++;
+        if(isset($_GET['orden'])){
+            $orden = $_GET['orden'];
+            $sql = 'SELECT id_usuario,orden,paqueteria,rfc,nombred,apellidod,direcciond,coloniad,ciudadd,estadod,codigopd,telefonod FROM registro_usuario WHERE orden=? LIMIT 1';
+            $stmt = $con->prepare($sql);
+            $stmt->bind_param("s",$orden);
+            $stmt->execute();
+            $result = $stmt->get_result(); 
+            $response = $result->fetch_assoc();
+            echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); 
+        }else{
+           $sql = 'SELECT *FROM view_pedido_medidas';
+            $stmt = $con->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $response = $result->fetch_all(MYSQLI_ASSOC);
+            echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); 
         }
-        echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+        
     }
 }else{
     echo "DB FOUND CONNECTED";

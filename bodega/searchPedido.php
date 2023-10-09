@@ -6,10 +6,13 @@ date_default_timezone_set('America/Mexico_City');
 // declarar array para respuestas 
 $response = array();
 
+//incluir middleware
+include '../middleware/validarToken.php';
+
 // insertamos cabeceras para permisos 
 
 header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept,Authorization, Access-Control-Request-Method");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 header("Content-Type: JSON");
@@ -19,7 +22,7 @@ $fecha = date('Y-m-d H:i:s');
 
 // validamos si hay conexion 
 if($con){
-
+    if($token_access['token']){
         function validarFecha($date, $format = 'Y-m-d H:i:s')
         {
             $d = DateTime::createFromFormat($format, $date);
@@ -75,7 +78,7 @@ if($con){
 
                  echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
               } else if(isset($_GET['pagados'])){
-                    $sqlPagados = 'SELECT * FROM folios WHERE estatus="Pagado" or estatus="Pausado" or estatus="Resuelto" order by fecha_entrega';
+                    $sqlPagados = 'SELECT * FROM folios WHERE estatus="Pagado" or estatus="Pausado" or estatus="Resuelto" order by fecha_entrega ';
                     $resultPagados = mysqli_query($con,$sqlPagados);
                     $i=0;
                     while($row = mysqli_fetch_assoc($resultPagados)){
@@ -118,6 +121,9 @@ if($con){
             break;
 
         }
+    }else{
+        echo $token_access['validate'];
+    }
     //echo "Informacion".file_get_contents('php://input');
 
 }else{

@@ -9,11 +9,12 @@ $fecha = date('Y-m-d H:i:s');
 // declarar array para respuestas 
 $response = array();
 
+//SELECT nombre,precio_costo,precio_costo_provisional,((precio_costo-precio_costo_provisional)/precio_costo_provisional)*100 as porcentaje FROM `productos`;
 
 // insertamos cabeceras para permisos 
 
 header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept,Authorization, Access-Control-Request-Method");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 header("Content-Type: JSON");
@@ -29,61 +30,45 @@ if($con){
         switch($methodApi){
             // metodo post 
             case 'POST':
-                //se convierten valores obtenidos por JSON A POST
-                $_POST = json_decode(file_get_contents('php://input'),true);
 
-                //inicio de transaccion 
-                $con->autocommit(false);
-                //declaramos array vacio
-                $data = [];
-                //le asignamos data de permisos (array de datos)
-                $data = $_POST['permisos'];
+                try{
+                    //se convierten valores obtenidos por JSON A POST
+                    $_POST = json_decode(file_get_contents('php://input'),true);
 
-                //iniciamos contador en cero
-                $i=0;
-                //declaramos bandera para filtrar algun error en la transaccion
-                $band = true;
-                // iniciamos ciclo while segun la cantidad de permisos a insertar
-                while($i<count($data)){
-                    /*incialmente consultamos si el registro del modulo segun el 
-                    tipo de usuario existe*/
+                    //inicio de transaccion 
+                    $con->autocommit(false);
+                    //declaramos array vacio
+                    $data = [];
+                    //le asignamos data de permisos (array de datos)
+                    $data = $_POST['permisos'];
+                    $tipo = $_POST['tipo'];
 
-                    $select = 'SELECT *FROM app_modulos_tipo_usuario_bodega WHERE id_tipo='.$data[$i]['id_tipo'].' AND id_modulo='.$data[$i]['id_modulo'].'';
-                    $res = mysqli_query($con,$select);
-                    $fill = mysqli_fetch_assoc($res);
-                    
-                    // si existe realizamos un UPDATE en su regustro
-                    if($fill){
-                        $update = 'UPDATE app_modulos_tipo_usuario_bodega SET view='.$data[$i]['addView'].', edit='.$data[$i]['addEdit'].', fecha_updated="'.$fecha.'" WHERE id_tipo='.$data[$i]['id_tipo'].' AND id_modulo='.$data[$i]['id_modulo'].'';
-                        $resUpdate = mysqli_query($con,$update);
+                    //iniciamos contador en cero
+                    $i=0;
+                    //declaramos bandera para filtrar algun error en la transaccion
+                    $band = true;
+                    // iniciamos ciclo while segun la cantidad de permisos a insertar
+                    while($i<count($data)){
+                        /*incialmente consultamos si el registro del modulo segun el 
+                        tipo de usuario existe*/
 
-                        //comprobamos que la ejecucion del update
-                        //sea exitosa e incrementamos el contador
-                        if($resUpdate){
-                            $i++;
-                        }else{
-                            //si el update no fue existoso
-                            // ejecutamos ROLLBACK de la transaccion
-                            // bandera es igual a false 
-                            header("HTTP/1.1 400");
-                            $response['status'] = 400;
-                            $response['mensaje'] = 'No se pudo guardar los registros';
-                            echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-                            $band = false;
-                            $con->rollback();
-                            break;
-                        }
-                    }else{
-                           // caso contrario si no existe  el registro realizamos un insert para el tipo de usuario
-                            $sql = 'INSERT INTO app_modulos_tipo_usuario_bodega(id_tipo,id_modulo,view,edit,fecha_created,fecha_updated) VALUES ('.$data[$i]['id_tipo'].','.$data[$i]['id_modulo'].','.$data[$i]['addView'].','.$data[$i]['addEdit'].',"'.$fecha.'","")';
-                            $res = mysqli_query($con,$sql);
+                        $select = 'SELECT *FROM app_modulos_tipo_usuario_bodega WHERE id_tipo='.$tipo.' AND id_modulo='.$data[$i]['id'].'';
+                        $res = mysqli_query($con,$select);
+                        $fill = mysqli_fetch_assoc($res);
+                        
+                        // si existe realizamos un UPDATE en su regustro
+                        if($fill){
+                            $view = $data[$i]['addView'] == true ? 1 : 0;
+                            $edit = $data[$i]['addEdit'] == true ? 1 : 0;
+                            $update = 'UPDATE app_modulos_tipo_usuario_bodega SET view='.$view.',edit='.$edit.',fecha_updated="'.$fecha.'" WHERE id_tipo='.$tipo.' AND id_modulo='.$data[$i]['id'].'';
+                            $resUpdate = mysqli_query($con,$update);
 
-                            //comprobamos que la insercion sea correcta
-                            if($res){
-                                //si es asi incrementamos el contador
+                            //comprobamos que la ejecucion del update
+                            //sea exitosa e incrementamos el contador
+                            if($resUpdate){
                                 $i++;
                             }else{
-                                //si el insert no fue existoso
+                                //si el update no fue existoso
                                 // ejecutamos ROLLBACK de la transaccion
                                 // bandera es igual a false 
                                 header("HTTP/1.1 400");
@@ -94,25 +79,55 @@ if($con){
                                 $con->rollback();
                                 break;
                             }
-                    }
-                }
-                //comprobamos que el ciclo de la transaccion se ejecuto correcto
-                // y ejecutamos el commit de la transaccion
-                if($band){
-                    header("HTTP/1.1 200 OK");
-                    $response['status'] = 200;
-                    $response['mensaje'] = 'Registros creados correctamente';
-                    echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-                    $con->commit();
+                        }else{
+                            // caso contrario si no existe  el registro realizamos un insert para el tipo de usuario
+                                $sql = 'INSERT INTO app_modulos_tipo_usuario_bodega(id_tipo,id_modulo,view,edit,fecha_created,fecha_updated) VALUES ('.$tipo.','.$data[$i]['id'].','.$data[$i]['addView'].','.$data[$i]['addEdit'].',"'.$fecha.'","")';
+                                $res = mysqli_query($con,$sql);
 
-                }else{
-                    //caso contrario reacemos cualquier modificacion hecha por la transaccion
+                                //comprobamos que la insercion sea correcta
+                                if($res){
+                                    //si es asi incrementamos el contador
+                                    $i++;
+                                }else{
+                                    //si el insert no fue existoso
+                                    // ejecutamos ROLLBACK de la transaccion
+                                    // bandera es igual a false 
+                                    header("HTTP/1.1 400");
+                                    $response['status'] = 400;
+                                    $response['mensaje'] = 'No se pudo guardar los registros';
+                                    echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                                    $band = false;
+                                    $con->rollback();
+                                    break;
+                                }
+                        }
+                    }
+                    //comprobamos que el ciclo de la transaccion se ejecuto correcto
+                    // y ejecutamos el commit de la transaccion
+                    if($band){
+                        header("HTTP/1.1 200 OK");
+                        $response['status'] = 200;
+                        $response['mensaje'] = 'Registros creados correctamente';
+                        echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                        $con->commit();
+
+                    }else{
+                        //caso contrario reacemos cualquier modificacion hecha por la transaccion
+                        header("HTTP/1.1 400");
+                        $response['status'] = 400;
+                        $response['mensaje'] = 'Ocurrio un error';
+                        echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                        $con->rollback();
+                    }   
+                }catch(Exception $e){
                     header("HTTP/1.1 400");
                     $response['status'] = 400;
-                    $response['mensaje'] = 'Ocurrio un error';
+                    $response['mensaje'] = $e->getMessage();
                     echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                    $band = false;
                     $con->rollback();
-                }   
+                    break; 
+                }
             break;
             // metodo get 
             case 'GET':

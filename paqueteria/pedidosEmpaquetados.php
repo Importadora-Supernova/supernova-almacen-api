@@ -12,7 +12,7 @@ $direccion = array();
 // insertamos cabeceras para permisos 
 
 header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept,Authorization, Access-Control-Request-Method");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 header("Content-Type: JSON");
@@ -31,6 +31,7 @@ if ($con) {
                 $datos[$i]['paqueteria'] = $row['paqueteria'];
                 $datos[$i]['estatus'] = $row['estatus'];
                 $datos[$i]['cajas'] = $row['cajas'];
+                $datos[$i]['marca'] = $row['marca'];
                 $fecha = '';
                 $sqlCajas = 'SELECT *FROM medidas_almacen WHERE orden="'.$row['orden'].'"';
                 $j = 0;

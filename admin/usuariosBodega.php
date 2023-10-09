@@ -3,7 +3,7 @@
 include '../conexion/conn.php';
 date_default_timezone_set('America/Mexico_City');
 //incluir middleware
-
+include '../middleware/validarToken.php';
 
 // declarar array para respuestas 
 $response = array();
@@ -11,7 +11,7 @@ $response = array();
 // insertamos cabeceras para permisos 
 
 header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type,Authorization, Accept, Access-Control-Request-Method");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 header("Content-Type: JSON");
@@ -21,13 +21,12 @@ $fecha_actual = date('Y-m-d H:i:s');
 
 // validamos si hay conexion 
 if($con){
-    
+    if($token_access['token']){
         $methodApi = $_SERVER['REQUEST_METHOD'];
 
         switch($methodApi){
             // metodo post 
             case 'POST':
-             // post
             $_POST = json_decode(file_get_contents('php://input'),true);
             
             $usuario = $_POST['usuario'];
@@ -103,6 +102,9 @@ if($con){
                     echo 'no se pudo actualizar';
             break;
         }
+    }else{
+        echo $token_access['validate'];
+    }
     //echo "Informacion".file_get_contents('php://input');
 
 }else{
