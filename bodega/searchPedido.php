@@ -34,26 +34,68 @@ if($con){
         switch($methodApi){
             // metodo post 
             case 'POST':
-             $_POST = json_decode(file_get_contents('php://input'),true);
-             $con->autocommit(false);
-             // actualizamos orden a pausado
-             $sqlUpdate = 'UPDATE folios SET estatus="Pausado" WHERE orden="'.$_POST['orden'].'"';
-             $result = mysqli_query($con,$sqlUpdate);
-
-             $sqlInsert = 'INSERT INTO notificaciones (id_empleado,orden,motivo,descripcion,accion,notificacion,fecha_pausado) VALUES ("3168","'.$_POST['orden'].'","'.$_POST['motivo'].'","'.$_POST['descripcion'].'","'.$_POST['accion'].'","si","'.$fecha.'")';
-             $resultInsert = mysqli_query($con,$sqlInsert);
-
-             if($result && $resultInsert){
-                $con->commit();
-                header("HTTP/1.1 200");
-                $response['mensaje'] = 'La orden fue pausada correctamente';
-                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-             }else{
-                $con->rollback();
-                header("HTTP/1.1 400");
-                $response['mensaje'] = 'Ocurrio un error,No se podo completar la accion';
-                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-             }
+                try{
+                    $_POST = json_decode(file_get_contents('php://input'),true);
+                    $con->autocommit(false);
+                    $id_usuario  = $_POST['id_usuario'];
+                    $orden       = $_POST['orden'];
+                    $motivo      = $_POST['motivo'];
+                    $descripcion = $_POST['descripcion'];
+                    $accion      = $_POST['accion'];
+                    $noti        = 'si';
+                    $productos   = $_POST['productos'];
+    
+                    // actualizamos orden a pausado
+                    $sqlUpdate = 'UPDATE folios SET estatus="Pausado" WHERE orden="'.$_POST['orden'].'"';
+                    $result = mysqli_query($con,$sqlUpdate);
+    
+                    // insertamos registro de notificacion
+                    $sqlInsert = 'INSERT INTO notificaciones (id_empleado,orden,motivo,descripcion,accion,notificacion,fecha_pausado) VALUES (?,?,?,?,?,?,?)';
+                    $stmt = $con->prepare($sqlInsert);
+                    $stmt->bind_param('sssssss',$id_usuario,$orden,$motivo,$descripcion,$accion,$noti,$fecha);
+                    $resultInsert = $stmt->execute();
+    
+                    $last_id = $con->insert_id;
+                    $user = intval($id_usuario);
+                    //insertamos un msj inicial en los comentarios
+                    $sqlInsertMensaje = 'INSERT INTO notificaciones_mensajes(id_notificacion,mensaje,user_created,fecha_created) VALUES(?,?,?,?)';
+                    $stmtMensaje = $con->prepare($sqlInsertMensaje);
+                    $stmtMensaje->bind_param('isis',$last_id,$descripcion,$user,$fecha);
+                    $resultInsertMensaje = $stmtMensaje->execute();
+    
+                    $band = false;
+                    //creamos inserciones por productos faltantes
+                    foreach($productos as $data){
+                        $sqlInsertFaltante = 'INSERT INTO productos_pedido_pausado (id_producto,orden,cantidad_faltante,fecha_created,user_created)VALUES(?,?,?,?,?)';
+                        $stmtInsert = $con->prepare($sqlInsertFaltante);
+                        $stmtInsert->bind_param('isisi',$data['id_producto'],$orden,$data['cantidad'],$fecha,$user);
+                        $res = $stmtInsert->execute();
+                        if($res == 1){
+                            $band = true;
+                        }else{
+                            $band = false;
+                            $con->rollback();
+                            break;
+                        }
+                    }
+    
+                    if($sqlUpdate && $resultInsert == 1 && $resultInsertMensaje == 1 && $band){
+                        $con->commit();
+                        header("HTTP/1.1 200");
+                        $response['mensaje'] = 'La orden fue pausada correctamente';
+                        echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                    }else{
+                        $con->rollback();
+                        header("HTTP/1.1 400");
+                        $response['mensaje'] = 'Ocurrio un error,No se podo completar la accion';
+                        echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                    }
+                }catch(Exception $e){
+                    $con->rollback();
+                    header("HTTP/1.1 400");
+                    $response['mensaje'] = $e->getMessage();
+                    echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+                }
             break;
             // metodo get 
             case 'GET':

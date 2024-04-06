@@ -31,7 +31,7 @@ if($con){
     
             if(isset($_GET['orden'])){
                 $orden = $_GET['orden'];
-                $sql = 'SELECT r.id,r.id_usuario,r.id_producto,r.nombre,r.codigo,r.cantidad,r.precio,r.nombred,r.apellidod,r.envio,r.paqueteria,r.rfc,r.nombred,r.direcciond,r.coloniad,r.ciudadd,r.estadod,r.codigopd,r.telefonod,r.estatus,p.almacen FROM registro_usuario r INNER JOIN productos p ON r.id_producto = p.id WHERE r.orden=?';
+                $sql = 'SELECT r.id,r.id_usuario,r.id_producto,r.nombre,r.codigo,r.cantidad,r.precio,r.nombred,r.apellidod,r.envio,r.paqueteria,r.rfc,r.orden,r.nombred,r.direcciond,r.coloniad,r.ciudadd,r.estadod,r.codigopd,r.telefonod,r.estatus,p.almacen FROM registro_usuario r INNER JOIN productos p ON r.id_producto = p.id WHERE r.orden=?';
                 $stmt = $con->prepare($sql);
                 $stmt->bind_param("s",$orden);
                 $stmt->execute();
@@ -75,7 +75,8 @@ if($con){
                         if($action == 'especial'){
                             if($row['descuento_especial'] == 0){
                                     //...
-                                $totalCosto += $row['precioc'];
+                                $total = intval($data['cantidad'])+floatval($row['precioc']);
+                                $totalCosto += $total;
                                 $sqlUpdate = 'UPDATE registro_usuario SET precio="'.$row['precioc'].'" WHERE id_producto='.$item['id_producto'].' AND orden="'.$orden.'"';
                                 $resultado = mysqli_query($con,$sqlUpdate);
                                 if($resultado){
@@ -85,7 +86,8 @@ if($con){
                                     break;
                                 } 
                             }else{
-                                $totalCosto += $row['descuento_especial'];
+                                $total = intval($data['cantidad'])+floatval($row['descuento_especial']);
+                                $totalCosto += $total;
                                 $sqlUpdate = 'UPDATE registro_usuario SET precio="'.$row['descuento_especial'].'" WHERE id_producto='.$item['id_producto'].' AND orden="'.$orden.'"';
                                 $resultado = mysqli_query($con,$sqlUpdate);
                                 if($resultado){
@@ -98,7 +100,8 @@ if($con){
                         }else if($action == 'general'){
                             if($row['descuento_general'] == 0){
                                 //...
-                                $totalCosto += $row['precioc'];
+                                $total = intval($data['cantidad'])+floatval($row['precioc']);
+                                $totalCosto += $total;
                                 $sqlUpdate = 'UPDATE registro_usuario SET precio="'.$row['precioc'].'" WHERE id_producto='.$item['id_producto'].' AND orden="'.$orden.'"';
                                 $resultado = mysqli_query($con,$sqlUpdate);
                                 if($resultado){
@@ -108,7 +111,8 @@ if($con){
                                     break;
                                 } 
                             }else{
-                                $totalCosto += $row['descuento_general'];
+                                $total = intval($data['cantidad'])+floatval($row['descuento_general']);
+                                $totalCosto += $total;
                                 $sqlUpdate = 'UPDATE registro_usuario SET precio="'.$row['descuento_general'].'" WHERE id_producto='.$item['id_producto'].' AND orden="'.$orden.'"';
                                 $resultado = mysqli_query($con,$sqlUpdate);
                                 if($resultado){
@@ -119,7 +123,8 @@ if($con){
                                 } 
                             } 
                         }else{
-                            $totalCosto += $row['precioc'];
+                            $total = intval($data['cantidad'])+floatval($row['precioc']);
+                            $totalCosto += $total;
                             $sqlUpdate = 'UPDATE registro_usuario SET precio="'.$row['precioc'].'" WHERE id_producto='.$item['id_producto'].' AND orden="'.$orden.'"';
                             $resultado = mysqli_query($con,$sqlUpdate);
                             if($resultado){

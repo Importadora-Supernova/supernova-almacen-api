@@ -27,11 +27,11 @@ if($con){
         if($methodApi == 'POST'){
             $_POST = json_decode(file_get_contents('php://input'),true);
 
-            $fecha_procesado   = $_POST['fecha'].'%';
+            $fecha_procesado = $_POST['fecha'] . '%';
             $vendedor = $_POST['vendedor'];
-            $sql = 'SELECT *FROM `view_pedidos_vendedor` WHERE vendedora=? AND fecha_procesado LIKE ?';
+            $sql = 'SELECT * FROM `view_pedidos_vendedor` WHERE vendedora=? AND fecha_procesado LIKE ?';
             $stmt = $con->prepare($sql);
-            $stmt->bind_param('ss',$vendedor,$fecha_procesado);
+            $stmt->bind_param('ss', $vendedor, $fecha_procesado);
             $stmt->execute();
             $result   = $stmt->get_result();
             $response = $result->fetch_all(MYSQLI_ASSOC);

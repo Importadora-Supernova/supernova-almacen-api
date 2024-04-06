@@ -3,7 +3,9 @@
 include '../conexion/conn.php';
 date_default_timezone_set('America/Mexico_City');
 // declarar array para respuestas 
-$response = array();
+$response       = array();
+$notificaciones = array();
+$mensajes       = array();
 
 // insertamos cabeceras para permisos 
 
@@ -20,25 +22,78 @@ if($con){
     
     if($methodApi == 'GET'){
 
-         // es para obtener todos los registros  por codigo
-        $sql = 'SELECT f.nombres,f.estatus,f.orden,n.motivo,n.descripcion,n.accion,n.observacion,n.notificacion,n.fecha_pausado,n.fecha_resuelto FROM folios f INNER JOIN notificaciones n ON f.orden = n.orden WHERE f.estatus = "Pausado"';
-        $result = mysqli_query($con,$sql);
-        $i=0;
-        while($row = mysqli_fetch_assoc($result)){
-            $response[$i]['orden'] = $row['orden'];
-            $response[$i]['nombres'] = $row['nombres'];
-            $response[$i]['estatus'] = $row['estatus'];
-            $response[$i]['motivo'] = $row['motivo']; 
-            $response[$i]['descripcion'] = $row['descripcion'];
-            $response[$i]['accion'] = $row['accion'];
-            $response[$i]['observacion'] = $row['observacion'];
-            $response[$i]['notificacion'] = $row['notificacion'];
-            $response[$i]['fecha_pausado'] = $row['fecha_pausado'];
-            $response[$i]['fecha_resuelto'] = $row['fecha_resuelto'];
-            $i++;
+        // es para obtener todos los registros  por codigo
+        if(isset($_GET['orden'])){
+            $sql = 'SELECT f.nombres,f.estatus,f.orden,n.id as id_notificacion,n.motivo,n.descripcion,n.accion,n.observacion,n.notificacion,n.fecha_pausado,n.fecha_resuelto FROM folios f INNER JOIN notificaciones n ON f.orden = n.orden WHERE f.estatus = "Pausado" AND n.orden="'.$_GET['orden'].'"';
+            $result = mysqli_query($con,$sql);
+    
+            while($row = mysqli_fetch_assoc($result)){
+                $response['orden'] = $row['orden'];
+                $response['nombres'] = $row['nombres'];
+                $response['estatus'] = $row['estatus'];
+                $response['motivo'] = $row['motivo']; 
+                $response['descripcion'] = $row['descripcion'];
+                $response['accion']      = $row['accion'];
+                $response['observacion'] = $row['observacion'];
+                $response['notificacion'] = $row['notificacion'];
+                $response['id_notificacion'] = $row['id_notificacion'];
+                $response['fecha_pausado'] = $row['fecha_pausado'];
+                $response['fecha_resuelto'] = $row['fecha_resuelto'];
+    
+                $sqlMensajes = 'SELECT n.id_notificaciones_mensajes as id_mensaje,n.mensaje,n.fecha_created,u.id_user_bodega,u.usuario_bodega FROM notificaciones_mensajes n INNER JOIN app_usuarios_bodega u ON n.user_created = u.id_user_bodega  WHERE n.id_notificacion='.$row['id_notificacion'].' ORDER BY n.id_notificaciones_mensajes DESC';
+    
+                $resultMensajes = mysqli_query($con,$sqlMensajes);
+                $j=0;
+                while($fill = mysqli_fetch_assoc($resultMensajes)){
+                    $mensajes[$j]['id_mensaje'] = $fill['id_mensaje'];
+                    $mensajes[$j]['mensaje'] = $fill['mensaje'];
+                    $mensajes[$j]['id_user_bodega'] = $fill['id_user_bodega'];
+                    $mensajes[$j]['usuario_bodega'] = $fill['usuario_bodega'];
+                    $mensajes[$j]['fecha_created'] = $fill['fecha_created'];
+                    $j++;
+                }
+                $response['mensajes'] = $mensajes;
+                $mensajes  = [];    
+            }
+            //$response['notificaciones'] = $notificaciones;
+            echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+        }else{
+            $sql = 'SELECT f.nombres,f.estatus,f.orden,n.id as id_notificacion,n.motivo,n.descripcion,n.accion,n.observacion,n.notificacion,n.fecha_pausado,n.fecha_resuelto FROM folios f INNER JOIN notificaciones n ON f.orden = n.orden WHERE f.estatus = "Pausado" ';
+            $result = mysqli_query($con,$sql);
+            $i=0;
+    
+            while($row = mysqli_fetch_assoc($result)){
+                $response[$i]['orden'] = $row['orden'];
+                $response[$i]['nombres'] = $row['nombres'];
+                $response[$i]['estatus'] = $row['estatus'];
+                $response[$i]['motivo'] = $row['motivo']; 
+                $response[$i]['descripcion'] = $row['descripcion'];
+                $response[$i]['accion']      = $row['accion'];
+                $response[$i]['observacion'] = $row['observacion'];
+                $response[$i]['notificacion'] = $row['notificacion'];
+                $response[$i]['id_notificacion'] = $row['id_notificacion'];
+                $response[$i]['fecha_pausado'] = $row['fecha_pausado'];
+                $response[$i]['fecha_resuelto'] = $row['fecha_resuelto'];
+    
+                $sqlMensajes = 'SELECT n.id_notificaciones_mensajes as id_mensaje,n.mensaje,n.fecha_created,u.id_user_bodega,u.usuario_bodega FROM notificaciones_mensajes n INNER JOIN app_usuarios_bodega u ON n.user_created = u.id_user_bodega  WHERE n.id_notificacion='.$row['id_notificacion'].' ORDER BY n.id_notificaciones_mensajes DESC';
+    
+                $resultMensajes = mysqli_query($con,$sqlMensajes);
+                $j=0;
+                while($fill = mysqli_fetch_assoc($resultMensajes)){
+                    $mensajes[$j]['id_mensaje'] = $fill['id_mensaje'];
+                    $mensajes[$j]['mensaje'] = $fill['mensaje'];
+                    $mensajes[$j]['id_user_bodega'] = $fill['id_user_bodega'];
+                    $mensajes[$j]['usuario_bodega'] = $fill['usuario_bodega'];
+                    $mensajes[$j]['fecha_created'] = $fill['fecha_created'];
+                    $j++;
+                }
+                $response[$i]['mensajes'] = $mensajes;
+                $mensajes  = [];    
+                $i++;
+            }
+            //$response['notificaciones'] = $notificaciones;
+            echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
         }
-        echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-
     }
 
     if($methodApi == 'POST'){
@@ -51,7 +106,7 @@ if($con){
             $orden       = $_POST['orden'];
             $accion      = $_POST['accion'];
             $observacion = $_POST['observacion'];
-            $saldo       = intval($_POST['saldo']); 
+            $saldo       = $_POST['saldo']; 
             $id_usuario  = $_POST['id_usuario'];
 
             if($accion == 'Saldo a favor'){

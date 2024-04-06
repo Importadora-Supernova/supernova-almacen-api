@@ -29,7 +29,7 @@ if($con){
              // metodo get 
              // para obtener un registro especifico
             if(isset($_GET['orden'])){
-                $sql = 'SELECT  *FROM productos_orden WHERE orden="'.$_GET['orden'].'" AND delete_item != "1"';
+                $sql = 'SELECT  *FROM productos_orden WHERE orden="'.$_GET['orden'].'"';
                 $result = mysqli_query($con,$sql);
                 $i=0;
                 while($row = mysqli_fetch_assoc($result)){      

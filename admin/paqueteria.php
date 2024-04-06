@@ -2,7 +2,7 @@
 // conexion con base de datos 
 include '../conexion/conn.php';
 //incluir middleware
-include '../middleware/validarToken.php';
+//include '../middleware/validarToken.php';
 
 
 // declarar array para respuestas 
@@ -79,6 +79,15 @@ if($con){
                     $response['estatus'] = $row['estatus_paqueteria'] == "1" ? true : false;
                     $response['descripcion'] = $row['descripcion'];
                     $response['color'] = $row['color'];
+                    $i++;
+                }
+                echo json_encode($response,JSON_PRETTY_PRINT);
+            }else if(isset($_GET['provision'])){
+                $sql = 'SELECT DISTINCT(paqueteria) FROM `folios` LIMIT 11';
+                $result = mysqli_query($con,$sql);
+                $i=0;
+                while($row = mysqli_fetch_assoc($result)){
+                    $response[$i]['name'] = $row['paqueteria'];
                     $i++;
                 }
                 echo json_encode($response,JSON_PRETTY_PRINT);

@@ -62,6 +62,43 @@ if($con){
             echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
 
         }
+
+        if($methodApi == 'PUT'){
+            $_PUT = json_decode(file_get_contents('php://input'),true);
+            $con->autocommit(false);
+            
+            $json_users = $_PUT['data'];
+            $nivel  = $_GET['nivel'];
+            $band = false;
+
+            foreach($json_users as $data){
+                $sql = 'UPDATE usuario SET nivel=? WHERE id_usuario=?';
+
+                $stmt = $con->prepare($sql);
+                $stmt->bind_param('si',$nivel,$data['id_usuario']);
+                $reta = $stmt->execute();
+                if($reta == 1){
+                    $band = true;
+                }else{
+                    $band = false;
+                    break;
+                }
+            }
+
+            if($band){
+                $con->commit();
+                header("HTTP/1.1 200");
+                $response['status'] = 200;
+                $response['mensaje'] = 'La actualizacion se ejecuto correctamente';
+                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); 
+            }else{
+                $con->rollback();
+                header("HTTP/1.1 400");
+                $response['status'] = 400;
+                $response['mensaje'] = 'Ocurrio un error al ejecutar proceso';
+                echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); 
+            }
+        }
     }else{
         echo $token_access['validate'];
     }

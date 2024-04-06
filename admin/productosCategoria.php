@@ -69,6 +69,12 @@ if($con){
                 $pagina = $_GET["pagina"];
                 $id = $_GET["subcategoria"];
 
+                /*SELECT productos.*
+                FROM productos
+                INNER JOIN admin_subcategorias ON productos.sub_categoria = admin_subcategorias.id_subcategoria
+                INNER JOIN admin_categorias ON admin_subcategorias.id_categoria = admin_categorias.id_categoria
+                WHERE admin_categorias.id_categoria = 7;*/
+
 
                 $limit = $productosPorPagina;
                 $offset = ($pagina - 1) * $productosPorPagina;

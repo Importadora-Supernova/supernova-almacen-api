@@ -2,7 +2,7 @@
 // conexion con base de datos 
 include '../conexion/conn.php';
 //import middleware
-include '../middleware/validarToken.php';
+//include '../middleware/validarToken.php';
 
 // declarar array para respuestas 
 $response = array();
@@ -21,9 +21,8 @@ header('Content-Type: application/json;charset=utf-8');
 
 // validamos si hay conexion 
 if($con){
-    if($token_access['token']){
+    //if($token_access['token']){
         $methodApi = $_SERVER['REQUEST_METHOD'];
-
         switch($methodApi){
             // metodo post 
             case 'POST':
@@ -126,10 +125,9 @@ if($con){
             break;
 
         }
-    }else{
+   /* }else{
         echo $token_access['validate'];
-    }
-    //echo "Informacion".file_get_contents('php://input');
+    }*/
 
 }else{
     echo "DB FOUND CONNECTED";
