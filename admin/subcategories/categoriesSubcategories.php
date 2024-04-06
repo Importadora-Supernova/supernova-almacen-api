@@ -28,6 +28,7 @@ if($con){
                 $categories[$i]['nombre'] = $row['nombre_categoria'];
                 $resultSubcategory = $categorySubcategory->getSubcategoriesCategoryId($con,$row['id_categoria']);
                 $j=0;
+                $subcategories = [];
                 foreach($resultSubcategory as $fill){
                     $subcategories[$j]['id'] = $fill['id_subcategoria'];
                     $subcategories[$j]['nombre'] = $fill['nombre_subcategoria'];
