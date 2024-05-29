@@ -91,6 +91,18 @@ if($con){
                     $i++;
                 }
                 echo json_encode($response,JSON_PRETTY_PRINT);
+            }else if (isset($_GET['actives'])){
+                $sql = 'SELECT *FROM admin_paqueterias WHERE estatus_paqueteria=1';
+                $result = mysqli_query($con,$sql);
+                $i=0;
+                while($row = mysqli_fetch_assoc($result)){
+                    $response[$i]['id_paqueteria'] = $row['id_paqueteria'];
+                    $response[$i]['nombre_paqueteria'] = $row['nombre_paqueteria'];
+                    $response[$i]['descripcion'] = $row['descripcion'];
+                    $response[$i]['color'] = $row['color'];
+                    $i++;
+                }
+                echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);  
             } else{
                   // es para obtener todos los registros 
                 $sql = 'SELECT *FROM admin_paqueterias';

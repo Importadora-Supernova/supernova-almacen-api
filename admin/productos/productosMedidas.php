@@ -20,16 +20,13 @@ if($con){
     //if($token_access['token']){
         $methodApi = $_SERVER['REQUEST_METHOD'];
 
-        if($methodApi == 'GET'){
-            $categoria = intval($_GET['categoria']);
-            $response = $producto->getAllProductsCategory($con,$categoria);
-            echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); 
-        }
-
         if($methodApi == 'POST'){
             $_POST = json_decode(file_get_contents('php://input'),true);
-            $subcategoria = $_POST['subcategoria'];
-            $response = $producto->getAllProductsSubcategory($con,$subcategoria);
+            
+            $jsonCodigos = $_POST['codigos'];
+            // Crear la lista de códigos para la consulta dinámica
+            $codigos_lista = "'" . implode("','", $jsonCodigos) . "'";
+            $response = $producto->getMedidasProducts($con,$codigos_lista);
             echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); 
         }
 

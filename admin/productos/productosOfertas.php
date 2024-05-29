@@ -20,19 +20,16 @@ if($con){
     //if($token_access['token']){
         $methodApi = $_SERVER['REQUEST_METHOD'];
 
-        if($methodApi == 'GET'){
-            $categoria = intval($_GET['categoria']);
-            $response = $producto->getAllProductsCategory($con,$categoria);
+
+        if(isset($_GET['new'])){
+            $response = $producto->getProductsNuevos($con);
+
+            echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); 
+        }else{
+            $response = $producto->getProductsOferta($con);
+
             echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); 
         }
-
-        if($methodApi == 'POST'){
-            $_POST = json_decode(file_get_contents('php://input'),true);
-            $subcategoria = $_POST['subcategoria'];
-            $response = $producto->getAllProductsSubcategory($con,$subcategoria);
-            echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); 
-        }
-
 }else{
     echo "DB FOUND CONNECTED";
 }
