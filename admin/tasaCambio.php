@@ -43,10 +43,20 @@ if($con){
                     //preparamos sentencia
                     $sql = "INSERT INTO admin_tasa_cambio (tasa_cambio,fecha_actualizacion) VALUES (?,?)";
                     $result = $query->insertarTasaCambio($con,$sql,$tasa,$fecha);
+
+
+                    $sqlProducts = 'SELECT app.*,p.precio_yuan AS price_yuan FROM admin_producto_proveedor app INNER JOIN (SELECT cod_producto, MAX(porcentaje_flete) AS max_flete FROM admin_producto_proveedor GROUP BY cod_producto) subquery ON app.cod_producto = subquery.cod_producto AND app.porcentaje_flete = subquery.max_flete INNER JOIN productos p ON app.id_producto = p.id';
+
+                    $stmt = $con->prepare($sql);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $data = $result->fetch_all(MYSQLI_ASSOC);
+
                     if($result){
                         header("HTTP/1.1 200");
                         $response['status'] = 200;
                         $response['mensaje'] = 'La tasa de cambio fue actualizada correctamente';
+                        $response['datos'] = $data;
                         echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); 
                     }
                 }

@@ -41,12 +41,15 @@ if($con){
             $userId = $_POST['user_id'];
             $codigo = $_POST['codigo'];
             $nombre = $_POST['nombre'];
-            $exist = $products->buscarBusquedaPalabra($con,$_POST);
 
-            if(!$exist){
-                $products->createSearchProduct($con,$_POST,$fecha);
+            if($user_id != null){
+                $exist = $products->buscarBusquedaPalabra($con,$_POST);
+
+                if(!$exist){
+                    $products->createSearchProduct($con,$_POST,$fecha);
+                }  
             }
-
+            
             $response = $products->getProductsCodigo($con,$codigo);
             echo  json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); 
         }

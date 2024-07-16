@@ -100,10 +100,33 @@
             return $data;
         }
 
+        //obtener productos en oferta
+        public function getProductsOfertaTodos($con)
+        {
+            $sql = 'SELECT p.*, ip.ruta_image FROM view_products_categoria p LEFT JOIN ( SELECT id_producto, MAX(a) AS ruta_image FROM img GROUP BY id_producto ) AS ip ON p.id = ip.id_producto WHERE p.descuento="si"  LIMIT 60';
+            $stmt = $con->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $data = $result->fetch_all(MYSQLI_ASSOC);
+            return $data;
+        }
+
          //obtener productos en oferta
         public function getProductsNuevos($con)
         {
             $sql = 'SELECT p.*, ip.ruta_image FROM view_products_categoria p LEFT JOIN ( SELECT id_producto, MAX(a) AS ruta_image FROM img GROUP BY id_producto ) AS ip ON p.id = ip.id_producto WHERE p.nuevo="si" ORDER BY  p.id DESC LIMIT 20 ';
+            $stmt = $con->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $data = $result->fetch_all(MYSQLI_ASSOC);
+            return $data;
+        }
+
+        
+         //obtener productos en oferta
+        public function getProductsNuevosTodos($con)
+        {
+            $sql = 'SELECT p.*, ip.ruta_image FROM view_products_categoria p LEFT JOIN ( SELECT id_producto, MAX(a) AS ruta_image FROM img GROUP BY id_producto ) AS ip ON p.id = ip.id_producto WHERE p.nuevo="si" ORDER BY  p.id DESC LIMIT 8 0 ';
             $stmt = $con->prepare($sql);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -121,11 +144,32 @@
                 $data = $result->fetch_all(MYSQLI_ASSOC);
                 return $data;
             }
+            //obtener productos en oferta
+            public function getProductsMasVistosTodos($con)
+            {
+                $sql = 'SELECT p.*, ip.ruta_image FROM view_products_categoria p LEFT JOIN ( SELECT id_producto, MAX(a) AS ruta_image FROM img GROUP BY id_producto ) AS ip ON p.id = ip.id_producto  ORDER BY  p.visitas DESC LIMIT 50';
+                $stmt = $con->prepare($sql);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $data = $result->fetch_all(MYSQLI_ASSOC);
+                return $data;
+            }
 
             //obtener productos para busqueda
             public function getProductsSearch($con)
             {
                 $sql = 'SELECT id,codigo,nombre,descripcion FROM productos';
+                $stmt = $con->prepare($sql);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $data = $result->fetch_all(MYSQLI_ASSOC);
+                return $data;
+            }
+
+             //obtener productos para busqueda
+            public function getCodigosAll($con)
+            {
+                $sql = 'SELECT SELECT codigo FROM productos GROUP BY codigo ORDER BY id';
                 $stmt = $con->prepare($sql);
                 $stmt->execute();
                 $result = $stmt->get_result();

@@ -99,6 +99,17 @@
         $reta = $stmt->execute();
         return $reta;
       }
+
+      public function getSearchedWords($con,$id)
+      {
+        $sql = 'SELECT *FROM searchs_users WHERE id_user=? ORDER BY id_search DESC LIMIT 5';
+        $stmt = $con->prepare($sql);
+        $stmt->bind_param('i',$id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $data = $result->fetch_all(MYSQLI_ASSOC);
+        return $data;
+      }
     /* sentencia que me ayuda a traer el restock mas reciente de los productos favoritos 
    SELECT nombre_producto, fecha_created FROM ( SELECT p.nombre AS nombre_producto, r.fecha_created, ROW_NUMBER() OVER (PARTITION BY pfu.id_user, p.id ORDER BY r.fecha_created DESC) AS rn FROM products_favorite_user pfu INNER JOIN productos p ON pfu.id_product = p.id INNER JOIN historial_carga_producto r ON p.id = r.id_producto WHERE pfu.id_user = 5849 ) AS ranked_restock WHERE rn = 1;
     */
