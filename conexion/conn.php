@@ -10,5 +10,8 @@
     $pass = '';
     $database = 'u983270445_prueba';
     $con = mysqli_connect($server,$user,$pass,$database);
+    if(!$con) {
+        die("Conexion fallo: " . mysqli_connect_error());
+    }
     mysqli_set_charset($con,"utf8");
 ?> 

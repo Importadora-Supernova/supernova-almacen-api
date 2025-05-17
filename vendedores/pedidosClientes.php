@@ -41,7 +41,7 @@ if($con){
                 echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
             }else{
                 $fecha = $_GET['fecha'].'%';
-                $sql = 'SELECT f.id,f.id_usuario,f.nombres,f.orden,f.envio,f.paqueteria,f.cantidad,f.total,f.estatus,f.nota,f.efectivo,f.monto,f.cajas,f.fecha,f.marcado,f.vendedora,u.nombre,u.apellido,u.direccion,u.colonia,u.ciudad,u.estado,u.codigop,u.correo,u.telefono,u.saldo_favor,d.factura FROM folios f LEFT JOIN usuario u ON f.id_usuario = u.id LEFT JOIN doc_pagos_pedido d ON f.orden = d.orden WHERE f.fecha LIKE ?  AND f.estatus="Sin Procesar" ORDER BY f.id DESC';
+                $sql = 'SELECT f.id,f.id_usuario,f.nombres,f.orden,f.envio,f.paqueteria,f.cantidad,f.total,f.estatus,f.nota,f.efectivo,f.monto,f.cajas,f.fecha,f.marcado,f.vendedora,u.nombre,u.apellido,u.direccion,u.colonia,u.ciudad,u.estado,u.codigop,u.correo,u.telefono,u.saldo_favor FROM folios f LEFT JOIN usuario u ON f.id_usuario = u.id WHERE DATE(f.fecha) = ?  AND f.estatus="Sin Procesar" ORDER BY f.id DESC';
                 $response = $cliente->getPedidosCliente($con,$sql,$fecha);
                 echo json_encode($response,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
             }

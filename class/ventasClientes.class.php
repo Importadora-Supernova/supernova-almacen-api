@@ -17,6 +17,17 @@ class pedidoCliente{
         return $data;
     }
     
+    public function updatePriceCost($con,$orden)
+    {
+        $query = "CALL actualizarPreciosYTotales(?)";
+        $stmt = $con->prepare($query);
+        $stmt->bind_param('s', $orden);
+        if($stmt->execute()){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }
 
 ?>
