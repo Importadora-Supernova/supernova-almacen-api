@@ -24,6 +24,7 @@ if($con){
         $methodApi = $_SERVER['REQUEST_METHOD'];
 
 
+
             if($methodApi == 'GET'){
                 $sqlBanco = 'SELECT SUM(monto) as total_banco FROM pagos WHERE fecha LIKE "'.$_GET['fecha'].'%" AND banco="'.$_GET['banco'].'"';
                 $result = mysqli_query($con,$sqlBanco);
